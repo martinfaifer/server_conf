@@ -1,0 +1,41 @@
+// Typography
+$font-family-sans-serif: "Roboto", Roboto;
+$font-size-base: 0.9rem;
+$line-height-base: 1.6;
+
+.theme--light.v-card {
+    background-color: #ffffff;
+}
+
+.theme--light.v-data-table {
+    background-color: #ffffff;
+}
+
+.theme--light.v-application {
+    background: #F8F9FA;
+}
+
+.theme--light.shadow-blur {
+    box-shadow: inset 0 0 1px 1px hsla(0, 0%, 99.6%, 0.9),
+        0 20px 27px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.theme--light.blur {
+    backdrop-filter: saturate(200%) blur(30px);
+    background-color: hsla(0, 0%, 100%, 0.8) !important;
+}
+
+// Colors
+$blue: #3490dc;
+$indigo: #6574cd;
+$purple: #9561e2;
+$pink: #f66d9b;
+$red: #e3342f;
+$orange: #f6993f;
+$yellow: #ffed4a;
+$green: #38c172;
+$teal: #4dc0b5;
+$cyan: #6cb2eb;
+$midnightBlue: #1a212c;
+$linearGradientError: linear-gradient(to right,#FD5D71,#EB0D0E);
+$linearGradientSuccess: linear-gradient(to right,#8EE72E,#20B236);
