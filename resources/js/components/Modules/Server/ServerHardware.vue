@@ -20,7 +20,7 @@
                         </v-card-subtitle>
                         <v-card-text class="text--center caption">
                             <v-container fluid>
-                                <v-row class="ml-3">
+                                <v-row>
                                     <v-col cols="12">
                                         <v-virtual-scroll
                                             :bench="0"
@@ -69,7 +69,7 @@
                         </v-card-subtitle>
                         <v-card-text class="text--center caption">
                             <v-container fluid>
-                                <v-row class="ml-3">
+                                <v-row >
                                     <v-col cols="12">
                                         <v-virtual-scroll
                                             :bench="0"

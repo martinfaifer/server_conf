@@ -29,4 +29,9 @@ class Server extends Model
     {
         return $this->hasMany(ServerDomain::class, 'server_id', 'id');
     }
+
+    public function logfiles()
+    {
+        return $this->hasMany(LogFilePath::class, 'server_id', 'id');
+    }
 }

@@ -1,8 +1,8 @@
 <template>
     <div>
         <ServerName :server="server"></ServerName>
-        <ServerSumInformations class="mt-n11" :serverConfiguration="serverConfiguration.server_data"></ServerSumInformations>
-        <ServerMenu></ServerMenu>
+        <ServerMenu class="mt-n10"></ServerMenu>
+        <ServerSumInformations class="mt-n3" :serverConfiguration="serverConfiguration.server_data"></ServerSumInformations>
         <ServerObecne
             v-if="$route.params.component === 'info'"
             :server="server"
@@ -65,6 +65,11 @@ export default {
                 });
         },
     },
+     mounted() {
+        this.$root.$on("reaload_server_information", (update) => {
+            this.index();
+        });
+     },
 
     watch: {
         $route(to, from) {

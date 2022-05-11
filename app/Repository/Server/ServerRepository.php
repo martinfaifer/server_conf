@@ -35,7 +35,9 @@ class ServerRepository
             'id' => $server->id,
             'ip_address' => $server->ip_address,
             'server_name' => $server->server_name,
-            'login' => $server->login
+            'login' => $server->login,
+            'domains' => $server->domains,
+            'logfiles' => $server->logfiles
         ];
     }
 

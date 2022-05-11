@@ -20,12 +20,18 @@
                         </v-card-subtitle>
                         <v-card-text class="text--center caption">
                             <v-container fluid>
-                                <v-row class="ml-3">
-                                    <v-col cols="12">
+                                <v-row>
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>IP: </strong>
                                         {{ server.ip_address }}
                                     </v-col>
-                                    <v-col cols="12">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>Přístup: </strong>
                                         {{ server.login.username }} /
                                         {{ server.login.password }}
@@ -35,7 +41,115 @@
                         </v-card-text>
                     </v-card>
                 </v-col>
-                <v-col cols="12" sm="12" md="8" lg="8" v-if="serverConfiguration != undefined">
+                <v-col cols="12" sm="12" md="4" lg="4" v-if="server.domains">
+                    <v-card
+                        class="overflow-hidden rounded-lg blur shadow-blur"
+                        flat
+                    >
+                        <v-card-subtitle>
+                            <v-row class="justify-center">
+                                <v-spacer></v-spacer>
+                                <p
+                                    class="mt-3 text-center caption font-weight-bold"
+                                >
+                                    Domény
+                                </p>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    icon
+                                    x-small
+                                    @click="openCreateDomainDialog()"
+                                >
+                                    <v-icon color="green" x-small
+                                        >mdi-plus</v-icon
+                                    >
+                                </v-btn>
+                            </v-row>
+                        </v-card-subtitle>
+                        <v-card-text class="text--center caption">
+                            <v-container fluid>
+                                <v-row>
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                        v-for="domain in server.domains"
+                                        :key="domain.id"
+                                    >
+                                        <a
+                                            :href="domain.domain"
+                                            target="_blank"
+                                            class="caption font-weight-bold grey--text"
+                                        >
+                                            {{ domain.domain }}
+                                        </a>
+                                        <v-btn icon x-small>
+                                            <v-icon color="info" x-small
+                                                >mdi-pencil</v-icon
+                                            >
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+                <v-col cols="12" sm="12" md="4" lg="4" v-if="server.logfiles">
+                    <v-card
+                        class="overflow-hidden rounded-lg blur shadow-blur"
+                        flat
+                    >
+                        <v-card-subtitle>
+                            <v-row class="justify-center">
+                                <v-spacer></v-spacer>
+                                <p
+                                    class="mt-3 text-center caption font-weight-bold"
+                                >
+                                    Logy
+                                </p>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    icon
+                                    x-small
+                                    @click="openCreateLogFilePathDialog()"
+                                >
+                                    <v-icon color="green" x-small
+                                        >mdi-plus</v-icon
+                                    >
+                                </v-btn>
+                            </v-row>
+                        </v-card-subtitle>
+                        <v-card-text class="text--center caption">
+                            <v-container fluid>
+                                <v-row>
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                        v-for="logfile in server.logfiles"
+                                        :key="logfile.id"
+                                    >
+                                        <p
+                                            class="caption font-weight-bold grey--text"
+                                        >
+                                            {{ logfile.description }}
+                                        </p>
+                                        <v-btn icon x-small @click="getLogFileContent(logfile.id)" :loading="loading">
+                                            <v-icon color="info" x-small
+                                                >mdi-magnify</v-icon
+                                            >
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+                <v-col
+                    cols="12"
+                    sm="12"
+                    md="4"
+                    lg="4"
+                    v-if="serverConfiguration != undefined"
+                >
                     <v-card
                         class="overflow-hidden rounded-lg blur shadow-blur"
                         flat
@@ -53,8 +167,11 @@
                         </v-card-subtitle>
                         <v-card-text class="text--center caption">
                             <v-container fluid>
-                                <v-row class="ml-3">
-                                    <v-col cols="12">
+                                <v-row>
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <v-virtual-scroll
                                             :bench="0"
                                             :items="
@@ -85,6 +202,124 @@
                 </v-col>
             </v-row>
         </v-container>
+
+        <v-dialog v-model="domainDialog" persistent max-width="600">
+            <v-form @submit.prevent="storeDomain()">
+                <v-card>
+                    <p class="grey lighten-5 text-center text-h6 py-3">
+                        Přidání domény na serveru
+                    </p>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="12" sm="12" md="12" lg="12">
+                                <v-text-field
+                                    :error-messages="errors.domain"
+                                    v-model="formData.domain"
+                                    label="Doména"
+                                    name="Doména"
+                                    type="text"
+                                    outlined
+                                    dense
+                                ></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions class="grey lighten-5">
+                        <v-btn
+                            color="red darken-1"
+                            text
+                            plain
+                            @click="closeDialog()"
+                        >
+                            Zavřít
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn type="submit" color="green darken-1" text plain>
+                            Uložit
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-form>
+        </v-dialog>
+
+        <v-dialog v-model="logFilePathDialog" persistent max-width="600">
+            <v-form @submit.prevent="storeLogfilePath()">
+                <v-card>
+                    <p class="grey lighten-5 text-center text-h6 py-3">
+                        Přidání cesty k logům
+                    </p>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="12" sm="12" md="6" lg="6">
+                                <v-text-field
+                                    :error-messages="errors.path"
+                                    v-model="formData.path"
+                                    label="Cesta k logům"
+                                    name="Cesta k logům"
+                                    type="text"
+                                    outlined
+                                    dense
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="12" md="6" lg="6">
+                                <v-text-field
+                                    :error-messages="errors.description"
+                                    v-model="formData.description"
+                                    label="Popis"
+                                    name="Popis"
+                                    type="text"
+                                    outlined
+                                    dense
+                                ></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions class="grey lighten-5">
+                        <v-btn
+                            color="red darken-1"
+                            text
+                            plain
+                            @click="closeDialog()"
+                        >
+                            Zavřít
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn type="submit" color="green darken-1" text plain>
+                            Uložit
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-form>
+        </v-dialog>
+
+         <v-dialog v-model="readFileDialog" persistent  max-width="800" scrollable>
+            <v-card>
+                <p class="grey lighten-5 text-center text-h6 py-3">
+                    Obsah souboru
+                </p>
+                <v-card-text>
+                    <v-row class="grey lighten-5">
+                        <v-col cols="12" sm="12" md="12" lg="12">
+                            <p v-for="line in formData" :key="line">
+                                {{ line }}
+                            </p>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+                <v-card-actions class="grey lighten-5">
+                    <v-btn
+                        :loading="loading"
+                        color="red darken-1"
+                        text
+                        plain
+                        @click="closeDialog()"
+                    >
+                        Zavřít
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 <script>
@@ -92,13 +327,62 @@ export default {
     props: ["server", "serverConfiguration"],
     computed: {},
     data() {
-        return {};
+        return {
+            loading: false,
+            domainDialog: false,
+            logFilePathDialog: false,
+            readFileDialog: false,
+            formData: [],
+            errors: [],
+        };
     },
 
     components: {},
 
     created() {},
-    methods: {},
+    methods: {
+        closeDialog() {
+            this.errors = [];
+            this.formData = [];
+            this.logFilePathDialog = false;
+            this.domainDialog = false;
+            this.readFileDialog = false;
+        },
+        getLogFileContent(fileId) {
+            this.loading = true;
+            axios
+                .get("servers/" + this.$route.params.serverId + "/logfiles/read/" + fileId)
+                .then((response) => {
+                    this.formData = response.data;
+                    this.readFileDialog = true;
+                    this.loading = false;
+                })
+        },
+        openCreateDomainDialog() {
+            this.domainDialog = true;
+        },
+        openCreateLogFilePathDialog() {
+            this.logFilePathDialog = true;
+        },
+        storeLogfilePath() {
+            axios
+                .post("servers/" + this.$route.params.serverId + "/logfiles", {
+                    path: this.formData.path,
+                    description: this.formData.description,
+                })
+                .then((response) => {
+                    this.$store.state.alerts = response.data;
+                    this.closeDialog();
+                    this.$root.$emit("reaload_server_information", "update");
+                })
+                .catch((error) => {
+                    this.errors = error.response.data.errors;
+                });
+        },
+        storeDomain() {
+            this.closeDialog();
+        },
+    },
 
     watch: {
         $route(to, from) {},

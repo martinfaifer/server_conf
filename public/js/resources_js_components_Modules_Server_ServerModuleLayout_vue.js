@@ -288,6 +288,13 @@ __webpack_require__.r(__webpack_exports__);
       });
     }
   },
+  mounted: function mounted() {
+    var _this2 = this;
+
+    this.$root.$on("reaload_server_information", function (update) {
+      _this2.index();
+    });
+  },
   watch: {
     $route: function $route(to, from) {
       this.index();
@@ -319,15 +326,113 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["server"],
   computed: {},
   data: function data() {
-    return {};
+    return {
+      editDialog: false,
+      formData: [],
+      errors: []
+    };
   },
   components: {},
   created: function created() {},
-  methods: {},
+  methods: {
+    updateServerData: function updateServerData() {
+      this.closeDialog();
+    },
+    openEditDialog: function openEditDialog() {
+      this.editDialog = true;
+    },
+    closeDialog: function closeDialog() {
+      this.editDialog = false;
+      this.formData = [];
+      this.errors = [];
+    }
+  },
   watch: {
     $route: function $route(to, from) {}
   }
@@ -434,15 +539,300 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["server", "serverConfiguration"],
   computed: {},
   data: function data() {
-    return {};
+    return {
+      loading: false,
+      domainDialog: false,
+      logFilePathDialog: false,
+      readFileDialog: false,
+      formData: [],
+      errors: []
+    };
   },
   components: {},
   created: function created() {},
-  methods: {},
+  methods: {
+    closeDialog: function closeDialog() {
+      this.errors = [];
+      this.formData = [];
+      this.logFilePathDialog = false;
+      this.domainDialog = false;
+      this.readFileDialog = false;
+    },
+    getLogFileContent: function getLogFileContent(fileId) {
+      var _this = this;
+
+      this.loading = true;
+      axios.get("servers/" + this.$route.params.serverId + "/logfiles/read/" + fileId).then(function (response) {
+        _this.formData = response.data;
+        _this.readFileDialog = true;
+        _this.loading = false;
+      });
+    },
+    openCreateDomainDialog: function openCreateDomainDialog() {
+      this.domainDialog = true;
+    },
+    openCreateLogFilePathDialog: function openCreateLogFilePathDialog() {
+      this.logFilePathDialog = true;
+    },
+    storeLogfilePath: function storeLogfilePath() {
+      var _this2 = this;
+
+      axios.post("servers/" + this.$route.params.serverId + "/logfiles", {
+        path: this.formData.path,
+        description: this.formData.description
+      }).then(function (response) {
+        _this2.$store.state.alerts = response.data;
+
+        _this2.closeDialog();
+
+        _this2.$root.$emit("reaload_server_information", "update");
+      })["catch"](function (error) {
+        _this2.errors = error.response.data.errors;
+      });
+    },
+    storeDomain: function storeDomain() {
+      this.closeDialog();
+    }
+  },
   watch: {
     $route: function $route(to, from) {}
   }
@@ -460,6 +850,69 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -819,6 +1272,27 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["serverConfiguration"],
   computed: {},
@@ -833,6 +1307,9 @@ __webpack_require__.r(__webpack_exports__);
       ram = ramString.replace("MemTotal:", "");
       ram = ram.replace("kB", "");
       return parseInt(ram = ram / 1000000);
+    },
+    convertToGB: function convertToGB(bytes) {
+      return Math.round(bytes / 1000000000);
     }
   },
   watch: {
@@ -1403,7 +1880,6 @@ var render = function () {
                                 [
                                   _c(
                                     "v-row",
-                                    { staticClass: "ml-3" },
                                     [
                                       _c(
                                         "v-col",
@@ -1530,7 +2006,6 @@ var render = function () {
                                 [
                                   _c(
                                     "v-row",
-                                    { staticClass: "ml-3" },
                                     [
                                       _c(
                                         "v-col",
@@ -1766,12 +2241,12 @@ var render = function () {
     [
       _c("ServerName", { attrs: { server: _vm.server } }),
       _vm._v(" "),
+      _c("ServerMenu", { staticClass: "mt-n10" }),
+      _vm._v(" "),
       _c("ServerSumInformations", {
-        staticClass: "mt-n11",
+        staticClass: "mt-n3",
         attrs: { serverConfiguration: _vm.serverConfiguration.server_data },
       }),
-      _vm._v(" "),
-      _c("ServerMenu"),
       _vm._v(" "),
       _vm.$route.params.component === "info"
         ? _c("ServerObecne", {
@@ -1833,19 +2308,259 @@ var render = function () {
         "v-row",
         [
           _c("v-col", { attrs: { cols: "12", sm: "11", md: "11", lg: "11" } }, [
-            _c("h2", { staticClass: "pt-1" }, [
-              _vm._v(
-                "\n                " +
-                  _vm._s(_vm.server.server_name) +
-                  "\n            "
-              ),
-            ]),
+            _c(
+              "h2",
+              { staticClass: "pt-1" },
+              [
+                _c(
+                  "v-btn",
+                  {
+                    attrs: { icon: "" },
+                    on: {
+                      click: function ($event) {
+                        return _vm.openEditDialog()
+                      },
+                    },
+                  },
+                  [
+                    _c(
+                      "v-icon",
+                      { staticClass: "px-3", attrs: { color: "info" } },
+                      [_vm._v(" mdi-pencil ")]
+                    ),
+                  ],
+                  1
+                ),
+                _vm._v(
+                  "\n                " +
+                    _vm._s(_vm.server.server_name) +
+                    "\n            "
+                ),
+              ],
+              1
+            ),
           ]),
         ],
         1
       ),
       _vm._v(" "),
       _c("v-divider", { staticClass: "py-3" }),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "800" },
+          model: {
+            value: _vm.editDialog,
+            callback: function ($$v) {
+              _vm.editDialog = $$v
+            },
+            expression: "editDialog",
+          },
+        },
+        [
+          _c(
+            "v-form",
+            {
+              on: {
+                submit: function ($event) {
+                  $event.preventDefault()
+                  return _vm.updateServerData()
+                },
+              },
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "p",
+                    { staticClass: "grey lighten-5 text-center text-h6 py-3" },
+                    [
+                      _vm._v(
+                        "\n                    Úprava informací o serveru\n                "
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                staticClass: "body-2",
+                                attrs: {
+                                  "error-messages": _vm.errors.server_name,
+                                  label: "Popis serveru",
+                                  name: "Popis serveru",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.server.server_name,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.server, "server_name", $$v)
+                                  },
+                                  expression: "server.server_name",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                staticClass: "body-2",
+                                attrs: {
+                                  "error-messages": _vm.errors.ip_address,
+                                  label: "IP serveru",
+                                  name: "IP serveru",
+                                  "prepend-inner-icon": "mdi-ip",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.server.ip_address,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.server, "ip_address", $$v)
+                                  },
+                                  expression: "server.ip_address",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                staticClass: "body-2",
+                                attrs: {
+                                  "error-messages": _vm.errors.username,
+                                  label: "Uživatelské jméno",
+                                  name: "Uživatelské jméno",
+                                  "prepend-inner-icon": "mdi-account",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.server.login.username,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.server.login, "username", $$v)
+                                  },
+                                  expression: "server.login.username",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                staticClass: "body-2",
+                                attrs: {
+                                  "error-messages": _vm.errors.password,
+                                  label: "Heslo",
+                                  name: "Heslo",
+                                  "prepend-inner-icon": "mdi-lock",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.server.login.password,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.server.login, "password", $$v)
+                                  },
+                                  expression: "server.login.password",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    { staticClass: "grey lighten-5" },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "red darken-1", text: "", plain: "" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.closeDialog()
+                            },
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Zavřít\n                    "
+                          ),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            type: "submit",
+                            color: "green darken-1",
+                            text: "",
+                            plain: "",
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Uložit\n                    "
+                          ),
+                        ]
+                      ),
+                    ],
+                    1
+                  ),
+                ],
+                1
+              ),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
     ],
     1
   )
@@ -1935,28 +2650,357 @@ var render = function () {
                                 [
                                   _c(
                                     "v-row",
-                                    { staticClass: "ml-3" },
                                     [
-                                      _c("v-col", { attrs: { cols: "12" } }, [
-                                        _c("strong", [_vm._v("IP: ")]),
-                                        _vm._v(
-                                          "\n                                    " +
-                                            _vm._s(_vm.server.ip_address) +
-                                            "\n                                "
-                                        ),
-                                      ]),
+                                      _c(
+                                        "v-col",
+                                        {
+                                          staticClass:
+                                            "d-flex justify-space-between",
+                                          attrs: { cols: "12" },
+                                        },
+                                        [
+                                          _c("strong", [_vm._v("IP: ")]),
+                                          _vm._v(
+                                            "\n                                    " +
+                                              _vm._s(_vm.server.ip_address) +
+                                              "\n                                "
+                                          ),
+                                        ]
+                                      ),
                                       _vm._v(" "),
-                                      _c("v-col", { attrs: { cols: "12" } }, [
-                                        _c("strong", [_vm._v("Přístup: ")]),
-                                        _vm._v(
-                                          "\n                                    " +
-                                            _vm._s(_vm.server.login.username) +
-                                            " /\n                                    " +
-                                            _vm._s(_vm.server.login.password) +
-                                            "\n                                "
-                                        ),
-                                      ]),
+                                      _c(
+                                        "v-col",
+                                        {
+                                          staticClass:
+                                            "d-flex justify-space-between",
+                                          attrs: { cols: "12" },
+                                        },
+                                        [
+                                          _c("strong", [_vm._v("Přístup: ")]),
+                                          _vm._v(
+                                            "\n                                    " +
+                                              _vm._s(
+                                                _vm.server.login.username
+                                              ) +
+                                              " /\n                                    " +
+                                              _vm._s(
+                                                _vm.server.login.password
+                                              ) +
+                                              "\n                                "
+                                          ),
+                                        ]
+                                      ),
                                     ],
+                                    1
+                                  ),
+                                ],
+                                1
+                              ),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.server.domains
+                ? _c(
+                    "v-col",
+                    { attrs: { cols: "12", sm: "12", md: "4", lg: "4" } },
+                    [
+                      _c(
+                        "v-card",
+                        {
+                          staticClass:
+                            "overflow-hidden rounded-lg blur shadow-blur",
+                          attrs: { flat: "" },
+                        },
+                        [
+                          _c(
+                            "v-card-subtitle",
+                            [
+                              _c(
+                                "v-row",
+                                { staticClass: "justify-center" },
+                                [
+                                  _c("v-spacer"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "p",
+                                    {
+                                      staticClass:
+                                        "mt-3 text-center caption font-weight-bold",
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                                Domény\n                            "
+                                      ),
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("v-spacer"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-btn",
+                                    {
+                                      attrs: { icon: "", "x-small": "" },
+                                      on: {
+                                        click: function ($event) {
+                                          return _vm.openCreateDomainDialog()
+                                        },
+                                      },
+                                    },
+                                    [
+                                      _c(
+                                        "v-icon",
+                                        {
+                                          attrs: {
+                                            color: "green",
+                                            "x-small": "",
+                                          },
+                                        },
+                                        [_vm._v("mdi-plus")]
+                                      ),
+                                    ],
+                                    1
+                                  ),
+                                ],
+                                1
+                              ),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-text",
+                            { staticClass: "text--center caption" },
+                            [
+                              _c(
+                                "v-container",
+                                { attrs: { fluid: "" } },
+                                [
+                                  _c(
+                                    "v-row",
+                                    _vm._l(
+                                      _vm.server.domains,
+                                      function (domain) {
+                                        return _c(
+                                          "v-col",
+                                          {
+                                            key: domain.id,
+                                            staticClass:
+                                              "d-flex justify-space-between",
+                                            attrs: { cols: "12" },
+                                          },
+                                          [
+                                            _c(
+                                              "a",
+                                              {
+                                                staticClass:
+                                                  "caption font-weight-bold grey--text",
+                                                attrs: {
+                                                  href: domain.domain,
+                                                  target: "_blank",
+                                                },
+                                              },
+                                              [
+                                                _vm._v(
+                                                  "\n                                        " +
+                                                    _vm._s(domain.domain) +
+                                                    "\n                                    "
+                                                ),
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "v-btn",
+                                              {
+                                                attrs: {
+                                                  icon: "",
+                                                  "x-small": "",
+                                                },
+                                              },
+                                              [
+                                                _c(
+                                                  "v-icon",
+                                                  {
+                                                    attrs: {
+                                                      color: "info",
+                                                      "x-small": "",
+                                                    },
+                                                  },
+                                                  [_vm._v("mdi-pencil")]
+                                                ),
+                                              ],
+                                              1
+                                            ),
+                                          ],
+                                          1
+                                        )
+                                      }
+                                    ),
+                                    1
+                                  ),
+                                ],
+                                1
+                              ),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.server.logfiles
+                ? _c(
+                    "v-col",
+                    { attrs: { cols: "12", sm: "12", md: "4", lg: "4" } },
+                    [
+                      _c(
+                        "v-card",
+                        {
+                          staticClass:
+                            "overflow-hidden rounded-lg blur shadow-blur",
+                          attrs: { flat: "" },
+                        },
+                        [
+                          _c(
+                            "v-card-subtitle",
+                            [
+                              _c(
+                                "v-row",
+                                { staticClass: "justify-center" },
+                                [
+                                  _c("v-spacer"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "p",
+                                    {
+                                      staticClass:
+                                        "mt-3 text-center caption font-weight-bold",
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                                Logy\n                            "
+                                      ),
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("v-spacer"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-btn",
+                                    {
+                                      attrs: { icon: "", "x-small": "" },
+                                      on: {
+                                        click: function ($event) {
+                                          return _vm.openCreateLogFilePathDialog()
+                                        },
+                                      },
+                                    },
+                                    [
+                                      _c(
+                                        "v-icon",
+                                        {
+                                          attrs: {
+                                            color: "green",
+                                            "x-small": "",
+                                          },
+                                        },
+                                        [_vm._v("mdi-plus")]
+                                      ),
+                                    ],
+                                    1
+                                  ),
+                                ],
+                                1
+                              ),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-text",
+                            { staticClass: "text--center caption" },
+                            [
+                              _c(
+                                "v-container",
+                                { attrs: { fluid: "" } },
+                                [
+                                  _c(
+                                    "v-row",
+                                    _vm._l(
+                                      _vm.server.logfiles,
+                                      function (logfile) {
+                                        return _c(
+                                          "v-col",
+                                          {
+                                            key: logfile.id,
+                                            staticClass:
+                                              "d-flex justify-space-between",
+                                            attrs: { cols: "12" },
+                                          },
+                                          [
+                                            _c(
+                                              "p",
+                                              {
+                                                staticClass:
+                                                  "caption font-weight-bold grey--text",
+                                              },
+                                              [
+                                                _vm._v(
+                                                  "\n                                        " +
+                                                    _vm._s(
+                                                      logfile.description
+                                                    ) +
+                                                    "\n                                    "
+                                                ),
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "v-btn",
+                                              {
+                                                attrs: {
+                                                  icon: "",
+                                                  "x-small": "",
+                                                  loading: _vm.loading,
+                                                },
+                                                on: {
+                                                  click: function ($event) {
+                                                    return _vm.getLogFileContent(
+                                                      logfile.id
+                                                    )
+                                                  },
+                                                },
+                                              },
+                                              [
+                                                _c(
+                                                  "v-icon",
+                                                  {
+                                                    attrs: {
+                                                      color: "info",
+                                                      "x-small": "",
+                                                    },
+                                                  },
+                                                  [_vm._v("mdi-magnify")]
+                                                ),
+                                              ],
+                                              1
+                                            ),
+                                          ],
+                                          1
+                                        )
+                                      }
+                                    ),
                                     1
                                   ),
                                 ],
@@ -1976,7 +3020,7 @@ var render = function () {
               _vm.serverConfiguration != undefined
                 ? _c(
                     "v-col",
-                    { attrs: { cols: "12", sm: "12", md: "8", lg: "8" } },
+                    { attrs: { cols: "12", sm: "12", md: "4", lg: "4" } },
                     [
                       _c(
                         "v-card",
@@ -2026,11 +3070,14 @@ var render = function () {
                                 [
                                   _c(
                                     "v-row",
-                                    { staticClass: "ml-3" },
                                     [
                                       _c(
                                         "v-col",
-                                        { attrs: { cols: "12" } },
+                                        {
+                                          staticClass:
+                                            "d-flex justify-space-between",
+                                          attrs: { cols: "12" },
+                                        },
                                         [
                                           _c("v-virtual-scroll", {
                                             attrs: {
@@ -2101,6 +3148,377 @@ var render = function () {
                     1
                   )
                 : _vm._e(),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "600" },
+          model: {
+            value: _vm.domainDialog,
+            callback: function ($$v) {
+              _vm.domainDialog = $$v
+            },
+            expression: "domainDialog",
+          },
+        },
+        [
+          _c(
+            "v-form",
+            {
+              on: {
+                submit: function ($event) {
+                  $event.preventDefault()
+                  return _vm.storeDomain()
+                },
+              },
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "p",
+                    { staticClass: "grey lighten-5 text-center text-h6 py-3" },
+                    [
+                      _vm._v(
+                        "\n                    Přidání domény na serveru\n                "
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "12",
+                                md: "12",
+                                lg: "12",
+                              },
+                            },
+                            [
+                              _c("v-text-field", {
+                                attrs: {
+                                  "error-messages": _vm.errors.domain,
+                                  label: "Doména",
+                                  name: "Doména",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.formData.domain,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.formData, "domain", $$v)
+                                  },
+                                  expression: "formData.domain",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    { staticClass: "grey lighten-5" },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "red darken-1", text: "", plain: "" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.closeDialog()
+                            },
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Zavřít\n                    "
+                          ),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            type: "submit",
+                            color: "green darken-1",
+                            text: "",
+                            plain: "",
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Uložit\n                    "
+                          ),
+                        ]
+                      ),
+                    ],
+                    1
+                  ),
+                ],
+                1
+              ),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "600" },
+          model: {
+            value: _vm.logFilePathDialog,
+            callback: function ($$v) {
+              _vm.logFilePathDialog = $$v
+            },
+            expression: "logFilePathDialog",
+          },
+        },
+        [
+          _c(
+            "v-form",
+            {
+              on: {
+                submit: function ($event) {
+                  $event.preventDefault()
+                  return _vm.storeLogfilePath()
+                },
+              },
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "p",
+                    { staticClass: "grey lighten-5 text-center text-h6 py-3" },
+                    [
+                      _vm._v(
+                        "\n                    Přidání cesty k logům\n                "
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                attrs: {
+                                  "error-messages": _vm.errors.path,
+                                  label: "Cesta k logům",
+                                  name: "Cesta k logům",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.formData.path,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.formData, "path", $$v)
+                                  },
+                                  expression: "formData.path",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                attrs: {
+                                  "error-messages": _vm.errors.description,
+                                  label: "Popis",
+                                  name: "Popis",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.formData.description,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.formData, "description", $$v)
+                                  },
+                                  expression: "formData.description",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    { staticClass: "grey lighten-5" },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "red darken-1", text: "", plain: "" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.closeDialog()
+                            },
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Zavřít\n                    "
+                          ),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            type: "submit",
+                            color: "green darken-1",
+                            text: "",
+                            plain: "",
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Uložit\n                    "
+                          ),
+                        ]
+                      ),
+                    ],
+                    1
+                  ),
+                ],
+                1
+              ),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "800", scrollable: "" },
+          model: {
+            value: _vm.readFileDialog,
+            callback: function ($$v) {
+              _vm.readFileDialog = $$v
+            },
+            expression: "readFileDialog",
+          },
+        },
+        [
+          _c(
+            "v-card",
+            [
+              _c(
+                "p",
+                { staticClass: "grey lighten-5 text-center text-h6 py-3" },
+                [_vm._v("\n                Obsah souboru\n            ")]
+              ),
+              _vm._v(" "),
+              _c(
+                "v-card-text",
+                [
+                  _c(
+                    "v-row",
+                    { staticClass: "grey lighten-5" },
+                    [
+                      _c(
+                        "v-col",
+                        { attrs: { cols: "12", sm: "12", md: "12", lg: "12" } },
+                        _vm._l(_vm.formData, function (line) {
+                          return _c("p", { key: line }, [
+                            _vm._v(
+                              "\n                            " +
+                                _vm._s(line) +
+                                "\n                        "
+                            ),
+                          ])
+                        }),
+                        0
+                      ),
+                    ],
+                    1
+                  ),
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-card-actions",
+                { staticClass: "grey lighten-5" },
+                [
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: {
+                        loading: _vm.loading,
+                        color: "red darken-1",
+                        text: "",
+                        plain: "",
+                      },
+                      on: {
+                        click: function ($event) {
+                          return _vm.closeDialog()
+                        },
+                      },
+                    },
+                    [_vm._v("\n                    Zavřít\n                ")]
+                  ),
+                  _vm._v(" "),
+                  _c("v-spacer"),
+                ],
+                1
+              ),
             ],
             1
           ),
@@ -2197,27 +3615,34 @@ var render = function () {
                                   _vm.serverConfiguration.eviroments
                                     ? _c(
                                         "v-row",
-                                        { staticClass: "ml-3" },
                                         [
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [_vm._v("PHP: ")]),
                                               _vm._v(" "),
                                               _vm.serverConfiguration.eviroments
                                                 .php.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .eviroments.php[0]
-                                                        ) +
-                                                        "\n                                    "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .eviroments.php[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2243,7 +3668,11 @@ var render = function () {
                                           _vm._v(" "),
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [
                                                 _vm._v("NodeJS: "),
@@ -2251,18 +3680,22 @@ var render = function () {
                                               _vm._v(" "),
                                               _vm.serverConfiguration.eviroments
                                                 .nodejs.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .eviroments
-                                                            .nodejs[0]
-                                                        ) +
-                                                        "\n                                    "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .eviroments
+                                                              .nodejs[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2288,7 +3721,11 @@ var render = function () {
                                           _vm._v(" "),
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [
                                                 _vm._v("Python3: "),
@@ -2296,18 +3733,22 @@ var render = function () {
                                               _vm._v(" "),
                                               _vm.serverConfiguration.eviroments
                                                 .python3.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .eviroments
-                                                            .python3[0]
-                                                        ) +
-                                                        "\n                                    "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .eviroments
+                                                              .python3[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2402,11 +3843,14 @@ var render = function () {
                                   _vm.serverConfiguration.web_server
                                     ? _c(
                                         "v-row",
-                                        { staticClass: "ml-3" },
                                         [
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [
                                                 _vm._v("Webový server: "),
@@ -2414,18 +3858,22 @@ var render = function () {
                                               _vm._v(" "),
                                               _vm.serverConfiguration.web_server
                                                 .webserver.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .web_server
-                                                            .webserver[0]
-                                                        ) +
-                                                        "\n                                    "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .web_server
+                                                              .webserver[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2520,27 +3968,34 @@ var render = function () {
                                   _vm.serverConfiguration.database
                                     ? _c(
                                         "v-row",
-                                        { staticClass: "ml-3" },
                                         [
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [_vm._v("MySQL: ")]),
                                               _vm._v(" "),
                                               _vm.serverConfiguration.database
                                                 .mysql.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .database.mysql[0]
-                                                        ) +
-                                                        "\n                                    "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .database.mysql[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2558,6 +4013,25 @@ var render = function () {
                                                           ),
                                                         ]
                                                       ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "v-btn",
+                                                        {
+                                                          staticClass: "ml-6",
+                                                          attrs: {
+                                                            plain: "",
+                                                            outlined: "",
+                                                            text: "",
+                                                            "x-small": "",
+                                                            color: "info",
+                                                          },
+                                                        },
+                                                        [
+                                                          _vm._v(
+                                                            "\n                                            Instalovat\n                                        "
+                                                          ),
+                                                        ]
+                                                      ),
                                                     ],
                                                     1
                                                   ),
@@ -2566,23 +4040,31 @@ var render = function () {
                                           _vm._v(" "),
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [_vm._v("Redis: ")]),
                                               _vm._v(" "),
                                               _vm.serverConfiguration.database
                                                 .redis.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .database.redis[0]
-                                                        ) +
-                                                        "\n                                    "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .database.redis[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2600,6 +4082,25 @@ var render = function () {
                                                           ),
                                                         ]
                                                       ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "v-btn",
+                                                        {
+                                                          staticClass: "ml-6",
+                                                          attrs: {
+                                                            plain: "",
+                                                            outlined: "",
+                                                            text: "",
+                                                            "x-small": "",
+                                                            color: "info",
+                                                          },
+                                                        },
+                                                        [
+                                                          _vm._v(
+                                                            "\n                                            Instalovat\n                                        "
+                                                          ),
+                                                        ]
+                                                      ),
                                                     ],
                                                     1
                                                   ),
@@ -2608,7 +4109,11 @@ var render = function () {
                                           _vm._v(" "),
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [
                                                 _vm._v("MongoDB: "),
@@ -2616,17 +4121,22 @@ var render = function () {
                                               _vm._v(" "),
                                               _vm.serverConfiguration.database
                                                 .mongoDb.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .database.mongoDb[0]
-                                                        ) +
-                                                        " "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .database
+                                                              .mongoDb[0]
+                                                          ) +
+                                                          " "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2644,6 +4154,25 @@ var render = function () {
                                                           ),
                                                         ]
                                                       ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "v-btn",
+                                                        {
+                                                          staticClass: "ml-6",
+                                                          attrs: {
+                                                            plain: "",
+                                                            outlined: "",
+                                                            text: "",
+                                                            "x-small": "",
+                                                            color: "info",
+                                                          },
+                                                        },
+                                                        [
+                                                          _vm._v(
+                                                            "\n                                            Instalovat\n                                        "
+                                                          ),
+                                                        ]
+                                                      ),
                                                     ],
                                                     1
                                                   ),
@@ -2652,7 +4181,11 @@ var render = function () {
                                           _vm._v(" "),
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12" } },
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
                                             [
                                               _c("strong", [
                                                 _vm._v("Memcached: "),
@@ -2660,18 +4193,22 @@ var render = function () {
                                               _vm._v(" "),
                                               _vm.serverConfiguration.database
                                                 .memcached.length != 0
-                                                ? _c("span", [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          _vm
-                                                            .serverConfiguration
-                                                            .database
-                                                            .memcached[0]
-                                                        ) +
-                                                        " "
-                                                    ),
-                                                  ])
+                                                ? _c(
+                                                    "span",
+                                                    { staticClass: "ml-3" },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            _vm
+                                                              .serverConfiguration
+                                                              .database
+                                                              .memcached[0]
+                                                          ) +
+                                                          " "
+                                                      ),
+                                                    ]
+                                                  )
                                                 : _c(
                                                     "span",
                                                     [
@@ -2686,6 +4223,25 @@ var render = function () {
                                                         [
                                                           _vm._v(
                                                             "\n                                            mdi-close\n                                        "
+                                                          ),
+                                                        ]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "v-btn",
+                                                        {
+                                                          staticClass: "ml-6",
+                                                          attrs: {
+                                                            plain: "",
+                                                            outlined: "",
+                                                            text: "",
+                                                            "x-small": "",
+                                                            color: "info",
+                                                          },
+                                                        },
+                                                        [
+                                                          _vm._v(
+                                                            "\n                                            Instalovat\n                                        "
                                                           ),
                                                         ]
                                                       ),
@@ -2786,15 +4342,19 @@ var render = function () {
                                               ),
                                             ]),
                                             _vm._v(
-                                              "\n                                   RAM " +
-                                                _vm._s(
+                                              "\n                                   RAM "
+                                            ),
+                                            _c("span", {
+                                              staticClass: "display-1",
+                                              domProps: {
+                                                innerHTML: _vm._s(
                                                   _vm.ramInHumanFormat(
                                                     _vm.serverConfiguration
                                                       .hardware.ram[0]
-                                                  )
-                                                ) +
-                                                "\n                                    GB\n                                "
-                                            ),
+                                                  ) + "GB"
+                                                ),
+                                              },
+                                            }),
                                           ],
                                           1
                                         ),
@@ -2847,13 +4407,94 @@ var render = function () {
                                               ),
                                             ]),
                                             _vm._v(
-                                              "\n                                    Počet CPU jader " +
-                                                _vm._s(
+                                              "\n                                    Počet CPU jader\n                                    "
+                                            ),
+                                            _c("span", {
+                                              staticClass: "display-1",
+                                              domProps: {
+                                                innerHTML: _vm._s(
                                                   _vm.serverConfiguration
                                                     .hardware.sumCpuCores[0]
-                                                ) +
-                                                "\n                                "
+                                                ),
+                                              },
+                                            }),
+                                          ],
+                                          1
+                                        ),
+                                      ])
+                                    : _vm._e(),
+                                ],
+                                1
+                              ),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.serverConfiguration != undefined
+                ? _c(
+                    "v-col",
+                    { attrs: { cols: "12", sm: "12", md: "4", lg: "4" } },
+                    [
+                      _c(
+                        "v-card",
+                        {
+                          staticClass:
+                            "overflow-hidden rounded-lg blur shadow-blur",
+                          attrs: { flat: "" },
+                        },
+                        [
+                          _c(
+                            "v-card-text",
+                            { staticClass: "text--center caption" },
+                            [
+                              _c(
+                                "v-container",
+                                { attrs: { fluid: "" } },
+                                [
+                                  _vm.serverConfiguration.hardware.hdd
+                                    ? _c("v-row", { staticClass: "ml-3" }, [
+                                        _c(
+                                          "span",
+                                          { staticClass: "headline" },
+                                          [
+                                            _c("v-icon", [
+                                              _vm._v(
+                                                "\n                                        mdi-harddisk\n                                    "
+                                              ),
+                                            ]),
+                                            _vm._v(
+                                              "\n                                    HDD "
                                             ),
+                                            _c("span", {
+                                              staticClass: "display-1",
+                                              domProps: {
+                                                innerHTML: _vm._s(
+                                                  _vm.convertToGB(
+                                                    _vm.serverConfiguration
+                                                      .hardware.hdd.total[0]
+                                                  ) + "GB / "
+                                                ),
+                                              },
+                                            }),
+                                            _c("span", {
+                                              staticClass:
+                                                "headline green--text",
+                                              domProps: {
+                                                innerHTML: _vm._s(
+                                                  _vm.convertToGB(
+                                                    _vm.serverConfiguration
+                                                      .hardware.hdd.free[0]
+                                                  ) + "GB zbývá"
+                                                ),
+                                              },
+                                            }),
                                           ],
                                           1
                                         ),

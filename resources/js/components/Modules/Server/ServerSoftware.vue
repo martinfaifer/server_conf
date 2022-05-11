@@ -26,13 +26,14 @@
                         </v-card-subtitle>
                         <v-card-text class="text--center caption">
                             <v-container fluid>
-                                <v-row
-                                    class="ml-3"
-                                    v-if="serverConfiguration.eviroments"
-                                >
-                                    <v-col cols="12">
+                                <v-row v-if="serverConfiguration.eviroments">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>PHP: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.eviroments
                                                     .php.length != 0
@@ -49,9 +50,13 @@
                                             </v-icon>
                                         </span>
                                     </v-col>
-                                    <v-col cols="12">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>NodeJS: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.eviroments
                                                     .nodejs.length != 0
@@ -69,9 +74,13 @@
                                         </span>
                                     </v-col>
 
-                                    <v-col cols="12">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>Python3: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.eviroments
                                                     .python3.length != 0
@@ -118,13 +127,14 @@
                         </v-card-subtitle>
                         <v-card-text class="text--center caption">
                             <v-container fluid>
-                                <v-row
-                                    class="ml-3"
-                                    v-if="serverConfiguration.web_server"
-                                >
-                                    <v-col cols="12">
+                                <v-row v-if="serverConfiguration.web_server">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>Webový server: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.web_server
                                                     .webserver.length != 0
@@ -171,13 +181,14 @@
                         </v-card-subtitle>
                         <v-card-text class="text--center caption">
                             <v-container fluid>
-                                <v-row
-                                    class="ml-3"
-                                    v-if="serverConfiguration.database"
-                                >
-                                    <v-col cols="12">
+                                <v-row v-if="serverConfiguration.database">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>MySQL: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.database
                                                     .mysql.length != 0
@@ -192,11 +203,25 @@
                                             <v-icon small color="red">
                                                 mdi-close
                                             </v-icon>
+                                            <v-btn
+                                                plain
+                                                outlined
+                                                text
+                                                x-small
+                                                color="info"
+                                                class="ml-6"
+                                            >
+                                                Instalovat
+                                            </v-btn>
                                         </span>
                                     </v-col>
-                                    <v-col cols="12">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>Redis: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.database
                                                     .redis.length != 0
@@ -211,11 +236,25 @@
                                             <v-icon small color="red">
                                                 mdi-close
                                             </v-icon>
+                                            <v-btn
+                                                plain
+                                                outlined
+                                                text
+                                                x-small
+                                                color="info"
+                                                class="ml-6"
+                                            >
+                                                Instalovat
+                                            </v-btn>
                                         </span>
                                     </v-col>
-                                    <v-col cols="12">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>MongoDB: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.database
                                                     .mongoDb.length != 0
@@ -229,11 +268,25 @@
                                             <v-icon small color="red">
                                                 mdi-close
                                             </v-icon>
+                                            <v-btn
+                                                plain
+                                                outlined
+                                                text
+                                                x-small
+                                                color="info"
+                                                class="ml-6"
+                                            >
+                                                Instalovat
+                                            </v-btn>
                                         </span>
                                     </v-col>
-                                     <v-col cols="12">
+                                    <v-col
+                                        cols="12"
+                                        class="d-flex justify-space-between"
+                                    >
                                         <strong>Memcached: </strong>
                                         <span
+                                            class="ml-3"
                                             v-if="
                                                 serverConfiguration.database
                                                     .memcached.length != 0
@@ -247,6 +300,16 @@
                                             <v-icon small color="red">
                                                 mdi-close
                                             </v-icon>
+                                            <v-btn
+                                                plain
+                                                outlined
+                                                text
+                                                x-small
+                                                color="info"
+                                                class="ml-6"
+                                            >
+                                                Instalovat
+                                            </v-btn>
                                         </span>
                                     </v-col>
                                 </v-row>
