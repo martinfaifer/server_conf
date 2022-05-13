@@ -6,6 +6,7 @@ use App\Models\Server;
 use App\Models\ServerUser;
 use Illuminate\Support\Facades\Auth;
 use App\Actions\Servers\GetInformationAction;
+use App\Repository\Server\ServerSuperUserRepository;
 use App\Repository\Server\ServerConfigDataRespository;
 
 class ServerRepository
@@ -37,7 +38,8 @@ class ServerRepository
             'server_name' => $server->server_name,
             'login' => $server->login,
             'domains' => $server->domains,
-            'logfiles' => $server->logfiles
+            'logfiles' => $server->logfiles,
+            'superuser' => $server->superuser //root_password
         ];
     }
 
@@ -53,6 +55,29 @@ class ServerRepository
 
             (new ServerUsersRepository())->store(Auth::user(), $server->id);
             (new ServerConfigDataRespository())->store($server, (new GetInformationAction())->get_information($server));
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+        }
+    }
+
+    public function update(object $server, object $formData): bool
+    {
+        try {
+            if(Server::where('ip_address', $formData->ip_address)->count() > 1) {
+                return false;
+            }
+            $server->update([
+                'ip_address' => $formData->ip_address,
+                'server_name' => $formData->server_name
+            ]);
+            // update login by login id
+            (new ServerLoginRepository())->update($server->server_login_id, $formData);
+            // manipulate with root password
+            is_null($formData->root_password)
+                ? (new ServerSuperUserRepository())->destroy($server)
+                : (new ServerSuperUserRepository())->updateOrCreate($server, $formData);
+
             return true;
         } catch (\Throwable $th) {
             return false;

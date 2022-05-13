@@ -27,9 +27,7 @@
                         <v-list-item-icon>
                             <v-icon small color="green">mdi-plus</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title
-                            >Přidat server</v-list-item-title
-                        >
+                        <v-list-item-title>Přidat server</v-list-item-title>
                     </v-list-item>
                     <v-divider class="mx-3"></v-divider>
                     <v-list-item
@@ -39,9 +37,7 @@
                         <v-list-item-icon>
                             <v-icon small color="indigo">mdi-magnify</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title
-                            >Zobrazit CronTab</v-list-item-title
-                        >
+                        <v-list-item-title>Zobrazit CronTab</v-list-item-title>
                     </v-list-item>
                     <v-divider class="mx-3"></v-divider>
                     <v-list-item
@@ -51,9 +47,7 @@
                         <v-list-item-icon>
                             <v-icon small color="red">mdi-restart</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title
-                            >Restartovat</v-list-item-title
-                        >
+                        <v-list-item-title>Restartovat</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
@@ -133,14 +127,30 @@
             </v-form>
         </v-dialog>
 
-        <v-dialog v-model="crontabDialog" persistent  max-width="800" scrollable>
+        <v-dialog v-model="crontabDialog" persistent max-width="800" scrollable>
             <v-card>
                 <p class="grey lighten-5 text-center text-h6 py-3">
                     Nastavení CronTabu
                 </p>
+                <v-btn
+                    icon
+                    x-small
+                    right
+                    absolute
+                    class="mt-4"
+                    @click="openEditCrontabDialog()"
+                >
+                    <v-icon x-small color="red"> mdi-pencil </v-icon>
+                </v-btn>
                 <v-card-text>
                     <v-row class="grey lighten-5">
-                        <v-col cols="12" sm="12" md="12" lg="12">
+                        <v-col
+                            cols="12"
+                            sm="12"
+                            md="12"
+                            lg="12"
+                            v-if="formData.crontab"
+                        >
                             <p v-for="line in formData.crontab" :key="line">
                                 {{ line }}
                             </p>
@@ -157,11 +167,53 @@
                         Zavřít
                     </v-btn>
                     <v-spacer></v-spacer>
-                    <!-- <v-btn type="submit" color="green darken-1" text plain>
-                            Uložit
-                        </v-btn> -->
                 </v-card-actions>
             </v-card>
+        </v-dialog>
+
+        <v-dialog
+            v-model="editCrontabDialog"
+            persistent
+            max-width="800"
+            scrollable
+        >
+            <v-form @submit.prevent="updateCrontab()">
+                <v-card>
+                    <p class="grey lighten-5 text-center text-h6 py-3">
+                        Úprava CronTabu
+                    </p>
+                    <v-card-text>
+                        <v-row class="grey lighten-5">
+                            <v-col
+                                cols="12"
+                                sm="12"
+                                md="12"
+                                lg="12"
+                                v-if="formData.crontabEdit"
+                            >
+                                <v-textarea
+                                    v-model="formData.crontabEdit"
+                                    :error="errors.fileContent"
+                                ></v-textarea>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions class="grey lighten-5">
+                        <v-btn
+                            color="red darken-1"
+                            text
+                            plain
+                            @click="closeDialog()"
+                        >
+                            Zavřít
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn type="submit" color="green darken-1" text plain :loading="submitLoading">
+                            Přepsat soubor
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-form>
         </v-dialog>
     </v-col>
 </template>
@@ -174,6 +226,8 @@ export default {
             formData: [],
             newServerDialog: false,
             crontabDialog: false,
+            editCrontabDialog: false,
+            submitLoading: false,
         };
     },
     components: {},
@@ -182,8 +236,10 @@ export default {
         closeDialog() {
             this.newServerDialog = false;
             this.crontabDialog = false;
+            this.editCrontabDialog = false;
             this.formData = [];
             this.errors = [];
+            this.submitLoading = false;
         },
         openNewServerDialog() {
             this.newServerDialog = true;
@@ -214,6 +270,30 @@ export default {
                     this.formData.crontab = response.data;
                     this.crontabDialog = true;
                 });
+        },
+
+        openEditCrontabDialog() {
+            this.formData.crontabEdit = this.joinByNewLine(this.formData.crontab);
+            this.editCrontabDialog = true;
+        },
+
+        updateCrontab() {
+            this.submitLoading = true;
+            axios
+                .post("servers/" + this.$route.params.serverId + "/crontab", {
+                    fileContent: this.formData.crontabEdit,
+                })
+                .then((response) => {
+                    this.$store.state.alerts = response.data;
+                    this.closeDialog();
+                })
+                .catch((error) => {
+                    this.errors = error.response.data.errors;
+                });
+        },
+
+        joinByNewLine(array) {
+            return array.join("\n");
         },
     },
 };

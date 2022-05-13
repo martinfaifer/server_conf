@@ -15,4 +15,12 @@ class ServerLoginRepository
         ]);
     }
 
+    public function update(int $serverLoginId, object $formData)
+    {
+        $serverLogin = ServerLogin::find($serverLoginId);
+        $serverLogin->update([
+            'username' => $formData->username,
+            'password' => $formData->password
+        ]);
+    }
 }

@@ -408,6 +408,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["server"],
   computed: {},
@@ -422,9 +435,34 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {},
   methods: {
     updateServerData: function updateServerData() {
-      this.closeDialog();
+      var _this = this;
+
+      axios.patch("servers/" + this.$route.params.serverId, {
+        server_name: this.formData.server_name,
+        ip_address: this.formData.ip_address,
+        username: this.formData.username,
+        password: this.formData.password,
+        root_password: this.formData.root_password
+      }).then(function (response) {
+        _this.$store.state.alerts = response.data;
+
+        _this.closeDialog();
+
+        _this.$root.$emit("reaload_server_information", "update");
+      });
     },
     openEditDialog: function openEditDialog() {
+      this.formData.server_name = this.server.server_name;
+      this.formData.ip_address = this.server.ip_address;
+      this.formData.username = this.server.login.username;
+      this.formData.password = this.server.login.password;
+
+      if (this.server.superuser) {
+        this.formData.root_password = this.server.superuser.root_password;
+      } else {
+        this.formData.root_password = "";
+      }
+
       this.editDialog = true;
     },
     closeDialog: function closeDialog() {
@@ -774,6 +812,130 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["server", "serverConfiguration"],
   computed: {},
@@ -783,7 +945,11 @@ __webpack_require__.r(__webpack_exports__);
       domainDialog: false,
       logFilePathDialog: false,
       readFileDialog: false,
+      loginDialog: false,
+      editDomainDialog: false,
+      removeDomainDialog: false,
       formData: [],
+      fileId: null,
       errors: []
     };
   },
@@ -793,18 +959,34 @@ __webpack_require__.r(__webpack_exports__);
     closeDialog: function closeDialog() {
       this.errors = [];
       this.formData = [];
+      this.loginDialog = false;
       this.logFilePathDialog = false;
       this.domainDialog = false;
       this.readFileDialog = false;
+      this.editDomainDialog = false;
+      this.removeDomainDialog = false;
+      this.loading = false;
+      this.fileId = null;
     },
     getLogFileContent: function getLogFileContent(fileId) {
       var _this = this;
 
+      this.fileId = fileId;
       this.loading = true;
       axios.get("servers/" + this.$route.params.serverId + "/logfiles/read/" + fileId).then(function (response) {
         _this.formData = response.data;
         _this.readFileDialog = true;
         _this.loading = false;
+      });
+    },
+    clearFileContent: function clearFileContent() {
+      var _this2 = this;
+
+      this.loading = true;
+      axios.post("servers/" + this.$route.params.serverId + "/logfiles/clear/" + this.fileId).then(function (response) {
+        _this2.$store.state.alerts = response.data;
+
+        _this2.closeDialog();
       });
     },
     openCreateDomainDialog: function openCreateDomainDialog() {
@@ -813,24 +995,70 @@ __webpack_require__.r(__webpack_exports__);
     openCreateLogFilePathDialog: function openCreateLogFilePathDialog() {
       this.logFilePathDialog = true;
     },
+    openEditDomainDialog: function openEditDomainDialog(domain) {
+      this.formData = domain;
+      this.editDomainDialog = true;
+    },
+    openRemoveDomainDialog: function openRemoveDomainDialog(domain) {
+      this.formData = domain;
+      this.removeDomainDialog = true;
+    },
     storeLogfilePath: function storeLogfilePath() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.post("servers/" + this.$route.params.serverId + "/logfiles", {
         path: this.formData.path,
         description: this.formData.description
       }).then(function (response) {
-        _this2.$store.state.alerts = response.data;
+        _this3.$store.state.alerts = response.data;
 
-        _this2.closeDialog();
+        _this3.closeDialog();
 
-        _this2.$root.$emit("reaload_server_information", "update");
+        _this3.$root.$emit("reaload_server_information", "update");
       })["catch"](function (error) {
-        _this2.errors = error.response.data.errors;
+        _this3.errors = error.response.data.errors;
       });
     },
     storeDomain: function storeDomain() {
-      this.closeDialog();
+      var _this4 = this;
+
+      axios.post("servers/" + this.$route.params.serverId + "/domains", {
+        domain: this.formData.domain
+      }).then(function (response) {
+        _this4.$store.state.alerts = response.data;
+
+        _this4.closeDialog();
+
+        _this4.$root.$emit("reaload_server_information", "update");
+      })["catch"](function (error) {
+        _this4.errors = error.response.data.errors;
+      });
+    },
+    updateDomain: function updateDomain() {
+      var _this5 = this;
+
+      axios.patch("servers/" + this.$route.params.serverId + "/domains/" + this.formData.id, {
+        domain: this.formData.domain
+      }).then(function (response) {
+        _this5.$store.state.alerts = response.data;
+
+        _this5.closeDialog();
+
+        _this5.$root.$emit("reaload_server_information", "update");
+      })["catch"](function (error) {
+        _this5.errors = error.response.data.errors;
+      });
+    },
+    removeDomain: function removeDomain() {
+      var _this6 = this;
+
+      axios["delete"]("servers/" + this.$route.params.serverId + "/domains/" + this.formData.id).then(function (response) {
+        _this6.$store.state.alerts = response.data;
+
+        _this6.closeDialog();
+
+        _this6.$root.$emit("reaload_server_information", "update");
+      });
     }
   },
   watch: {
@@ -2406,11 +2634,11 @@ var render = function () {
                                   dense: "",
                                 },
                                 model: {
-                                  value: _vm.server.server_name,
+                                  value: _vm.formData.server_name,
                                   callback: function ($$v) {
-                                    _vm.$set(_vm.server, "server_name", $$v)
+                                    _vm.$set(_vm.formData, "server_name", $$v)
                                   },
-                                  expression: "server.server_name",
+                                  expression: "formData.server_name",
                                 },
                               }),
                             ],
@@ -2435,11 +2663,11 @@ var render = function () {
                                   dense: "",
                                 },
                                 model: {
-                                  value: _vm.server.ip_address,
+                                  value: _vm.formData.ip_address,
                                   callback: function ($$v) {
-                                    _vm.$set(_vm.server, "ip_address", $$v)
+                                    _vm.$set(_vm.formData, "ip_address", $$v)
                                   },
-                                  expression: "server.ip_address",
+                                  expression: "formData.ip_address",
                                 },
                               }),
                             ],
@@ -2449,7 +2677,7 @@ var render = function () {
                           _c(
                             "v-col",
                             {
-                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                              attrs: { cols: "12", sm: "12", md: "4", lg: "4" },
                             },
                             [
                               _c("v-text-field", {
@@ -2464,11 +2692,11 @@ var render = function () {
                                   dense: "",
                                 },
                                 model: {
-                                  value: _vm.server.login.username,
+                                  value: _vm.formData.username,
                                   callback: function ($$v) {
-                                    _vm.$set(_vm.server.login, "username", $$v)
+                                    _vm.$set(_vm.formData, "username", $$v)
                                   },
-                                  expression: "server.login.username",
+                                  expression: "formData.username",
                                 },
                               }),
                             ],
@@ -2478,7 +2706,7 @@ var render = function () {
                           _c(
                             "v-col",
                             {
-                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                              attrs: { cols: "12", sm: "12", md: "4", lg: "4" },
                             },
                             [
                               _c("v-text-field", {
@@ -2493,11 +2721,40 @@ var render = function () {
                                   dense: "",
                                 },
                                 model: {
-                                  value: _vm.server.login.password,
+                                  value: _vm.formData.password,
                                   callback: function ($$v) {
-                                    _vm.$set(_vm.server.login, "password", $$v)
+                                    _vm.$set(_vm.formData, "password", $$v)
                                   },
-                                  expression: "server.login.password",
+                                  expression: "formData.password",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "4", lg: "4" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                staticClass: "body-2",
+                                attrs: {
+                                  "error-messages": _vm.errors.root_password,
+                                  label: "Root heslo",
+                                  name: "Root heslo",
+                                  "prepend-inner-icon": "mdi-lock",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.formData.root_password,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.formData, "root_password", $$v)
+                                  },
+                                  expression: "formData.root_password",
                                 },
                               }),
                             ],
@@ -2668,28 +2925,56 @@ var render = function () {
                                         ]
                                       ),
                                       _vm._v(" "),
-                                      _c(
-                                        "v-col",
-                                        {
-                                          staticClass:
-                                            "d-flex justify-space-between",
-                                          attrs: { cols: "12" },
-                                        },
-                                        [
-                                          _c("strong", [_vm._v("Přístup: ")]),
-                                          _vm._v(
-                                            "\n                                    " +
-                                              _vm._s(
-                                                _vm.server.login.username
-                                              ) +
-                                              " /\n                                    " +
-                                              _vm._s(
-                                                _vm.server.login.password
-                                              ) +
-                                              "\n                                "
-                                          ),
-                                        ]
-                                      ),
+                                      _vm.server.login
+                                        ? _c(
+                                            "v-col",
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
+                                            [
+                                              _c("strong", [
+                                                _vm._v("Přístup: "),
+                                              ]),
+                                              _vm._v(
+                                                "\n                                    " +
+                                                  _vm._s(
+                                                    _vm.server.login.username
+                                                  ) +
+                                                  " /\n                                    " +
+                                                  _vm._s(
+                                                    _vm.server.login.password
+                                                  ) +
+                                                  "\n                                "
+                                              ),
+                                            ]
+                                          )
+                                        : _vm._e(),
+                                      _vm._v(" "),
+                                      _vm.server.superuser
+                                        ? _c(
+                                            "v-col",
+                                            {
+                                              staticClass:
+                                                "d-flex justify-space-between",
+                                              attrs: { cols: "12" },
+                                            },
+                                            [
+                                              _c("strong", [
+                                                _vm._v("Root heslo: "),
+                                              ]),
+                                              _vm._v(
+                                                "\n                                    " +
+                                                  _vm._s(
+                                                    _vm.server.superuser
+                                                      .root_password
+                                                  ) +
+                                                  "\n                                "
+                                              ),
+                                            ]
+                                          )
+                                        : _vm._e(),
                                     ],
                                     1
                                   ),
@@ -2817,29 +3102,75 @@ var render = function () {
                                             ),
                                             _vm._v(" "),
                                             _c(
-                                              "v-btn",
-                                              {
-                                                attrs: {
-                                                  icon: "",
-                                                  "x-small": "",
-                                                },
-                                              },
+                                              "div",
                                               [
                                                 _c(
-                                                  "v-icon",
+                                                  "v-btn",
                                                   {
                                                     attrs: {
-                                                      color: "info",
+                                                      icon: "",
                                                       "x-small": "",
                                                     },
+                                                    on: {
+                                                      click: function ($event) {
+                                                        return _vm.openEditDomainDialog(
+                                                          domain
+                                                        )
+                                                      },
+                                                    },
                                                   },
-                                                  [_vm._v("mdi-pencil")]
+                                                  [
+                                                    _c(
+                                                      "v-icon",
+                                                      {
+                                                        attrs: {
+                                                          color: "info",
+                                                          "x-small": "",
+                                                        },
+                                                      },
+                                                      [_vm._v("mdi-pencil")]
+                                                    ),
+                                                  ],
+                                                  1
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-btn",
+                                                  {
+                                                    attrs: {
+                                                      icon: "",
+                                                      "x-small": "",
+                                                    },
+                                                    on: {
+                                                      click: function ($event) {
+                                                        return _vm.openRemoveDomainDialog(
+                                                          domain
+                                                        )
+                                                      },
+                                                    },
+                                                  },
+                                                  [
+                                                    _c(
+                                                      "v-icon",
+                                                      {
+                                                        attrs: {
+                                                          color: "red",
+                                                          "x-small": "",
+                                                        },
+                                                      },
+                                                      [
+                                                        _vm._v(
+                                                          "\n                                                mdi-delete\n                                            "
+                                                        ),
+                                                      ]
+                                                    ),
+                                                  ],
+                                                  1
                                                 ),
                                               ],
                                               1
                                             ),
-                                          ],
-                                          1
+                                          ]
                                         )
                                       }
                                     ),
@@ -3293,6 +3624,139 @@ var render = function () {
         {
           attrs: { persistent: "", "max-width": "600" },
           model: {
+            value: _vm.editDomainDialog,
+            callback: function ($$v) {
+              _vm.editDomainDialog = $$v
+            },
+            expression: "editDomainDialog",
+          },
+        },
+        [
+          _c(
+            "v-form",
+            {
+              on: {
+                submit: function ($event) {
+                  $event.preventDefault()
+                  return _vm.updateDomain()
+                },
+              },
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "p",
+                    { staticClass: "grey lighten-5 text-center text-h6 py-3" },
+                    [
+                      _vm._v(
+                        "\n                    Úprava domény na serveru\n                "
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "12",
+                                md: "12",
+                                lg: "12",
+                              },
+                            },
+                            [
+                              _c("v-text-field", {
+                                attrs: {
+                                  "error-messages": _vm.errors.domain,
+                                  label: "Doména",
+                                  name: "Doména",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.formData.domain,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.formData, "domain", $$v)
+                                  },
+                                  expression: "formData.domain",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    { staticClass: "grey lighten-5" },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "red darken-1", text: "", plain: "" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.closeDialog()
+                            },
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Zavřít\n                    "
+                          ),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            type: "submit",
+                            color: "green darken-1",
+                            text: "",
+                            plain: "",
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Uložit\n                    "
+                          ),
+                        ]
+                      ),
+                    ],
+                    1
+                  ),
+                ],
+                1
+              ),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "600" },
+          model: {
             value: _vm.logFilePathDialog,
             callback: function ($$v) {
               _vm.logFilePathDialog = $$v
@@ -3500,12 +3964,7 @@ var render = function () {
                   _c(
                     "v-btn",
                     {
-                      attrs: {
-                        loading: _vm.loading,
-                        color: "red darken-1",
-                        text: "",
-                        plain: "",
-                      },
+                      attrs: { color: "red darken-1", text: "", plain: "" },
                       on: {
                         click: function ($event) {
                           return _vm.closeDialog()
@@ -3516,6 +3975,131 @@ var render = function () {
                   ),
                   _vm._v(" "),
                   _c("v-spacer"),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: {
+                        loading: _vm.loading,
+                        color: "orange darken-1",
+                        text: "",
+                        plain: "",
+                      },
+                      on: {
+                        click: function ($event) {
+                          return _vm.clearFileContent()
+                        },
+                      },
+                    },
+                    [
+                      _vm._v(
+                        "\n                    Smazat obsah souboru\n                "
+                      ),
+                    ]
+                  ),
+                ],
+                1
+              ),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "400px" },
+          model: {
+            value: _vm.removeDomainDialog,
+            callback: function ($$v) {
+              _vm.removeDomainDialog = $$v
+            },
+            expression: "removeDomainDialog",
+          },
+        },
+        [
+          _c(
+            "v-card",
+            [
+              _c(
+                "v-card-text",
+                [
+                  _c(
+                    "v-container",
+                    { staticClass: "pt-3" },
+                    [
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "12",
+                                md: "12",
+                                lg: "12",
+                              },
+                            },
+                            [
+                              _c(
+                                "p",
+                                { staticClass: "mt-6 text-center headline" },
+                                [
+                                  _vm._v(
+                                    "\n                                Přejete si odebrat doménu?\n                            "
+                                  ),
+                                ]
+                              ),
+                            ]
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  ),
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-card-actions",
+                { staticClass: "grey lighten-5" },
+                [
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: {
+                        color: "blue darken-1",
+                        plain: "",
+                        outlined: "",
+                      },
+                      on: {
+                        click: function ($event) {
+                          return _vm.closeDialog()
+                        },
+                      },
+                    },
+                    [_vm._v("\n                    Zavřít\n                ")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { color: "red darken-1", plain: "", outlined: "" },
+                      on: {
+                        click: function ($event) {
+                          return _vm.removeDomain()
+                        },
+                      },
+                    },
+                    [_vm._v("\n                    Odebrat\n                ")]
+                  ),
                 ],
                 1
               ),

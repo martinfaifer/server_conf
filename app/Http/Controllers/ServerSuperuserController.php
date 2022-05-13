@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class ServerDomainController extends Controller
+class ServerSuperuserController extends Controller
 {
     //
 }

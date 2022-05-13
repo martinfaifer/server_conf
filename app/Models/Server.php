@@ -34,4 +34,9 @@ class Server extends Model
     {
         return $this->hasMany(LogFilePath::class, 'server_id', 'id');
     }
+
+    public function superuser()
+    {
+        return $this->hasOne(ServerSuperuser::class, 'server_id', 'id');
+    }
 }

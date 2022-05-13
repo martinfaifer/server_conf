@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repository\Server\ServerRepository;
 use App\Http\Requests\Servers\StoreServerRequest;
+use App\Http\Requests\Servers\UpdateServerNameLoginAndIpRequest;
 
 class ServerController extends Controller
 {
@@ -25,5 +26,12 @@ class ServerController extends Controller
         return $serverRepository->store($request) == true
             ? $this->success_response("Vytvořeno")
             : $this->error_response("Nepovedlo se založit");
+    }
+
+    public function update(UpdateServerNameLoginAndIpRequest $request, Server $server, ServerRepository $serverRepository)
+    {
+        return $serverRepository->update($server, $request) == true
+            ? $this->success_response("Upraveno")
+            : $this->error_response('Nepodařilo se upravit');
     }
 }

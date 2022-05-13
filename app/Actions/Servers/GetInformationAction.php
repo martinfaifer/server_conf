@@ -10,7 +10,6 @@ use App\Actions\Servers\Commands\GetMemcachedVersion;
 use App\Actions\Servers\Commands\GetPhpVersionAction;
 use App\Actions\Servers\Commands\GetSumCpuCoreAction;
 use App\Actions\Servers\Commands\GetNodeVersionAction;
-use App\Repository\Server\ServerConfigDataRespository;
 use App\Actions\Servers\Commands\GetHardwareInfoAction;
 use App\Actions\Servers\Commands\GetHddFreeSpaceAction;
 use App\Actions\Servers\Commands\GetMySqlVersionAction;
@@ -28,7 +27,6 @@ class GetInformationAction
         $servers = Server::get();
         foreach ($servers as $server) {
             dispatch(new GetServerInformationJob($server));
-            // (new ServerConfigDataRespository())->store($server, $this->get_information($server));
         }
     }
 

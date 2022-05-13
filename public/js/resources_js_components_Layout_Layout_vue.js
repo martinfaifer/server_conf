@@ -309,6 +309,58 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   computed: {},
   data: function data() {
@@ -316,7 +368,9 @@ __webpack_require__.r(__webpack_exports__);
       errors: [],
       formData: [],
       newServerDialog: false,
-      crontabDialog: false
+      crontabDialog: false,
+      editCrontabDialog: false,
+      submitLoading: false
     };
   },
   components: {},
@@ -325,8 +379,10 @@ __webpack_require__.r(__webpack_exports__);
     closeDialog: function closeDialog() {
       this.newServerDialog = false;
       this.crontabDialog = false;
+      this.editCrontabDialog = false;
       this.formData = [];
       this.errors = [];
+      this.submitLoading = false;
     },
     openNewServerDialog: function openNewServerDialog() {
       this.newServerDialog = true;
@@ -358,6 +414,27 @@ __webpack_require__.r(__webpack_exports__);
         _this2.formData.crontab = response.data;
         _this2.crontabDialog = true;
       });
+    },
+    openEditCrontabDialog: function openEditCrontabDialog() {
+      this.formData.crontabEdit = this.joinByNewLine(this.formData.crontab);
+      this.editCrontabDialog = true;
+    },
+    updateCrontab: function updateCrontab() {
+      var _this3 = this;
+
+      this.submitLoading = true;
+      axios.post("servers/" + this.$route.params.serverId + "/crontab", {
+        fileContent: this.formData.crontabEdit
+      }).then(function (response) {
+        _this3.$store.state.alerts = response.data;
+
+        _this3.closeDialog();
+      })["catch"](function (error) {
+        _this3.errors = error.response.data.errors;
+      });
+    },
+    joinByNewLine: function joinByNewLine(array) {
+      return array.join("\n");
     }
   }
 });
@@ -1253,26 +1330,54 @@ var render = function () {
               ),
               _vm._v(" "),
               _c(
+                "v-btn",
+                {
+                  staticClass: "mt-4",
+                  attrs: { icon: "", "x-small": "", right: "", absolute: "" },
+                  on: {
+                    click: function ($event) {
+                      return _vm.openEditCrontabDialog()
+                    },
+                  },
+                },
+                [
+                  _c("v-icon", { attrs: { "x-small": "", color: "red" } }, [
+                    _vm._v(" mdi-pencil "),
+                  ]),
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
                 "v-card-text",
                 [
                   _c(
                     "v-row",
                     { staticClass: "grey lighten-5" },
                     [
-                      _c(
-                        "v-col",
-                        { attrs: { cols: "12", sm: "12", md: "12", lg: "12" } },
-                        _vm._l(_vm.formData.crontab, function (line) {
-                          return _c("p", { key: line }, [
-                            _vm._v(
-                              "\n                            " +
-                                _vm._s(line) +
-                                "\n                        "
-                            ),
-                          ])
-                        }),
-                        0
-                      ),
+                      _vm.formData.crontab
+                        ? _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "12",
+                                md: "12",
+                                lg: "12",
+                              },
+                            },
+                            _vm._l(_vm.formData.crontab, function (line) {
+                              return _c("p", { key: line }, [
+                                _vm._v(
+                                  "\n                            " +
+                                    _vm._s(line) +
+                                    "\n                        "
+                                ),
+                              ])
+                            }),
+                            0
+                          )
+                        : _vm._e(),
                     ],
                     1
                   ),
@@ -1298,6 +1403,140 @@ var render = function () {
                   ),
                   _vm._v(" "),
                   _c("v-spacer"),
+                ],
+                1
+              ),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "800", scrollable: "" },
+          model: {
+            value: _vm.editCrontabDialog,
+            callback: function ($$v) {
+              _vm.editCrontabDialog = $$v
+            },
+            expression: "editCrontabDialog",
+          },
+        },
+        [
+          _c(
+            "v-form",
+            {
+              on: {
+                submit: function ($event) {
+                  $event.preventDefault()
+                  return _vm.updateCrontab()
+                },
+              },
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "p",
+                    { staticClass: "grey lighten-5 text-center text-h6 py-3" },
+                    [
+                      _vm._v(
+                        "\n                    Úprava CronTabu\n                "
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-row",
+                        { staticClass: "grey lighten-5" },
+                        [
+                          _vm.formData.crontabEdit
+                            ? _c(
+                                "v-col",
+                                {
+                                  attrs: {
+                                    cols: "12",
+                                    sm: "12",
+                                    md: "12",
+                                    lg: "12",
+                                  },
+                                },
+                                [
+                                  _c("v-textarea", {
+                                    attrs: { error: _vm.errors.fileContent },
+                                    model: {
+                                      value: _vm.formData.crontabEdit,
+                                      callback: function ($$v) {
+                                        _vm.$set(
+                                          _vm.formData,
+                                          "crontabEdit",
+                                          $$v
+                                        )
+                                      },
+                                      expression: "formData.crontabEdit",
+                                    },
+                                  }),
+                                ],
+                                1
+                              )
+                            : _vm._e(),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    { staticClass: "grey lighten-5" },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "red darken-1", text: "", plain: "" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.closeDialog()
+                            },
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Zavřít\n                    "
+                          ),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            type: "submit",
+                            color: "green darken-1",
+                            text: "",
+                            plain: "",
+                            loading: _vm.submitLoading,
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Přepsat soubor\n                    "
+                          ),
+                        ]
+                      ),
+                    ],
+                    1
+                  ),
                 ],
                 1
               ),
