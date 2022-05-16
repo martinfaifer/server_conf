@@ -6,7 +6,7 @@ use App\Actions\Servers\ConnectionAction;
 
 class ClearAnyFileAction
 {
-    public function handle(object $server, string $path, $needSuperUser = false)
+    public function handle(object $server, string $path, bool $needSuperUser = false)
     {
         $connection = (new ConnectionAction())->handle($server);
         if ($connection == false) {

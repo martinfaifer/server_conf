@@ -224,7 +224,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _ServerName_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ServerName.vue */ "./resources/js/components/Modules/Server/ServerName.vue");
-/* harmony import */ var _ServerSumInformations__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ServerSumInformations */ "./resources/js/components/Modules/Server/ServerSumInformations.vue");
+/* harmony import */ var _ServerSumInformations_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ServerSumInformations.vue */ "./resources/js/components/Modules/Server/ServerSumInformations.vue");
 /* harmony import */ var _ServerMenu_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ServerMenu.vue */ "./resources/js/components/Modules/Server/ServerMenu.vue");
 /* harmony import */ var _ServerObecne_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ServerObecne.vue */ "./resources/js/components/Modules/Server/ServerObecne.vue");
 /* harmony import */ var _ServerHardware_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ServerHardware.vue */ "./resources/js/components/Modules/Server/ServerHardware.vue");
@@ -267,7 +267,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   components: {
     ServerName: _ServerName_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
-    ServerSumInformations: _ServerSumInformations__WEBPACK_IMPORTED_MODULE_1__["default"],
+    ServerSumInformations: _ServerSumInformations_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     ServerMenu: _ServerMenu_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
     ServerObecne: _ServerObecne_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
     ServerHardware: _ServerHardware_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
@@ -936,11 +936,124 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["server", "serverConfiguration"],
   computed: {},
   data: function data() {
     return {
+      hiddenRootPassword: true,
       loading: false,
       domainDialog: false,
       logFilePathDialog: false,
@@ -948,6 +1061,7 @@ __webpack_require__.r(__webpack_exports__);
       loginDialog: false,
       editDomainDialog: false,
       removeDomainDialog: false,
+      editLogFileDialog: false,
       formData: [],
       fileId: null,
       errors: []
@@ -965,6 +1079,7 @@ __webpack_require__.r(__webpack_exports__);
       this.readFileDialog = false;
       this.editDomainDialog = false;
       this.removeDomainDialog = false;
+      this.editLogFileDialog = false;
       this.loading = false;
       this.fileId = null;
     },
@@ -974,9 +1089,14 @@ __webpack_require__.r(__webpack_exports__);
       this.fileId = fileId;
       this.loading = true;
       axios.get("servers/" + this.$route.params.serverId + "/logfiles/read/" + fileId).then(function (response) {
-        _this.formData = response.data;
-        _this.readFileDialog = true;
-        _this.loading = false;
+        if (response.data.status == "error") {
+          _this.$store.state.alerts = response.data;
+          _this.loading = false;
+        } else {
+          _this.formData = response.data;
+          _this.readFileDialog = true;
+          _this.loading = false;
+        }
       });
     },
     clearFileContent: function clearFileContent() {
@@ -1003,6 +1123,10 @@ __webpack_require__.r(__webpack_exports__);
       this.formData = domain;
       this.removeDomainDialog = true;
     },
+    openEditLogFileDialog: function openEditLogFileDialog(file) {
+      this.formData = file;
+      this.editLogFileDialog = true;
+    },
     storeLogfilePath: function storeLogfilePath() {
       var _this3 = this;
 
@@ -1019,11 +1143,13 @@ __webpack_require__.r(__webpack_exports__);
         _this3.errors = error.response.data.errors;
       });
     },
-    storeDomain: function storeDomain() {
+    updateLogfilePath: function updateLogfilePath() {
       var _this4 = this;
 
-      axios.post("servers/" + this.$route.params.serverId + "/domains", {
-        domain: this.formData.domain
+      axios.patch("servers/" + this.$route.params.serverId + "/logfiles/" + this.formData.id, {
+        path: this.formData.path,
+        description: this.formData.description,
+        act_as_superuser: this.formData.act_as_superuser
       }).then(function (response) {
         _this4.$store.state.alerts = response.data;
 
@@ -1034,10 +1160,10 @@ __webpack_require__.r(__webpack_exports__);
         _this4.errors = error.response.data.errors;
       });
     },
-    updateDomain: function updateDomain() {
+    storeDomain: function storeDomain() {
       var _this5 = this;
 
-      axios.patch("servers/" + this.$route.params.serverId + "/domains/" + this.formData.id, {
+      axios.post("servers/" + this.$route.params.serverId + "/domains", {
         domain: this.formData.domain
       }).then(function (response) {
         _this5.$store.state.alerts = response.data;
@@ -1049,20 +1175,43 @@ __webpack_require__.r(__webpack_exports__);
         _this5.errors = error.response.data.errors;
       });
     },
-    removeDomain: function removeDomain() {
+    updateDomain: function updateDomain() {
       var _this6 = this;
 
-      axios["delete"]("servers/" + this.$route.params.serverId + "/domains/" + this.formData.id).then(function (response) {
+      axios.patch("servers/" + this.$route.params.serverId + "/domains/" + this.formData.id, {
+        domain: this.formData.domain
+      }).then(function (response) {
         _this6.$store.state.alerts = response.data;
 
         _this6.closeDialog();
 
         _this6.$root.$emit("reaload_server_information", "update");
+      })["catch"](function (error) {
+        _this6.errors = error.response.data.errors;
       });
+    },
+    removeDomain: function removeDomain() {
+      var _this7 = this;
+
+      axios["delete"]("servers/" + this.$route.params.serverId + "/domains/" + this.formData.id).then(function (response) {
+        _this7.$store.state.alerts = response.data;
+
+        _this7.closeDialog();
+
+        _this7.$root.$emit("reaload_server_information", "update");
+      });
+    },
+    showRootPassword: function showRootPassword() {
+      this.hiddenRootPassword = false;
+    },
+    hideRootPassword: function hideRootPassword() {
+      this.hiddenRootPassword = true;
     }
   },
   watch: {
-    $route: function $route(to, from) {}
+    $route: function $route(to, from) {
+      this.hiddenRootPassword = true;
+    }
   }
 });
 
@@ -1521,6 +1670,110 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["serverConfiguration"],
   computed: {},
@@ -1531,13 +1784,16 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {},
   methods: {
     ramInHumanFormat: function ramInHumanFormat(ramString) {
-      var ram;
-      ram = ramString.replace("MemTotal:", "");
-      ram = ram.replace("kB", "");
-      return parseInt(ram = ram / 1000000);
+      // let ram;
+      // ram = ramString.replace("MemTotal:", "");
+      // ram = ram.replace("kB", "");
+      return parseInt(ramString / 1000000);
     },
     convertToGB: function convertToGB(bytes) {
       return Math.round(bytes / 1000000000);
+    },
+    countPercent: function countPercent(total, free) {
+      return parseInt(free * 100 / total);
     }
   },
   watch: {
@@ -2857,7 +3113,7 @@ var render = function () {
               _vm.server.login
                 ? _c(
                     "v-col",
-                    { attrs: { cols: "12", sm: "12", md: "4", lg: "4" } },
+                    { attrs: { cols: "12", sm: "12", md: "3", lg: "3" } },
                     [
                       _c(
                         "v-card",
@@ -2964,13 +3220,75 @@ var render = function () {
                                               _c("strong", [
                                                 _vm._v("Root heslo: "),
                                               ]),
-                                              _vm._v(
-                                                "\n                                    " +
-                                                  _vm._s(
-                                                    _vm.server.superuser
-                                                      .root_password
-                                                  ) +
-                                                  "\n                                "
+                                              _vm._v(" "),
+                                              _c(
+                                                "div",
+                                                [
+                                                  _vm.hiddenRootPassword == true
+                                                    ? _c("span", [
+                                                        _vm._v(
+                                                          "\n                                            *****\n                                        "
+                                                        ),
+                                                      ])
+                                                    : _c("span", [
+                                                        _vm._v(
+                                                          "\n                                            " +
+                                                            _vm._s(
+                                                              _vm.server
+                                                                .superuser
+                                                                .root_password
+                                                            ) +
+                                                            "\n                                        "
+                                                        ),
+                                                      ]),
+                                                  _vm._v(" "),
+                                                  _vm.hiddenRootPassword == true
+                                                    ? _c(
+                                                        "v-icon",
+                                                        {
+                                                          staticClass: "mx-3",
+                                                          attrs: {
+                                                            small: "",
+                                                            color: "grey",
+                                                          },
+                                                          on: {
+                                                            click: function (
+                                                              $event
+                                                            ) {
+                                                              return _vm.showRootPassword()
+                                                            },
+                                                          },
+                                                        },
+                                                        [
+                                                          _vm._v(
+                                                            "\n                                            mdi-eye-off\n                                        "
+                                                          ),
+                                                        ]
+                                                      )
+                                                    : _c(
+                                                        "v-icon",
+                                                        {
+                                                          staticClass: "mx-3",
+                                                          attrs: {
+                                                            small: "",
+                                                            color: "grey",
+                                                          },
+                                                          on: {
+                                                            click: function (
+                                                              $event
+                                                            ) {
+                                                              return _vm.hideRootPassword()
+                                                            },
+                                                          },
+                                                        },
+                                                        [
+                                                          _vm._v(
+                                                            "\n                                            mdi-eye\n                                        "
+                                                          ),
+                                                        ]
+                                                      ),
+                                                ],
+                                                1
                                               ),
                                             ]
                                           )
@@ -2995,7 +3313,7 @@ var render = function () {
               _vm.server.domains
                 ? _c(
                     "v-col",
-                    { attrs: { cols: "12", sm: "12", md: "4", lg: "4" } },
+                    { attrs: { cols: "12", sm: "12", md: "5", lg: "5" } },
                     [
                       _c(
                         "v-card",
@@ -3124,7 +3442,7 @@ var render = function () {
                                                       "v-icon",
                                                       {
                                                         attrs: {
-                                                          color: "info",
+                                                          color: "green",
                                                           "x-small": "",
                                                         },
                                                       },
@@ -3298,37 +3616,72 @@ var render = function () {
                                             ),
                                             _vm._v(" "),
                                             _c(
-                                              "v-btn",
-                                              {
-                                                attrs: {
-                                                  icon: "",
-                                                  "x-small": "",
-                                                  loading: _vm.loading,
-                                                },
-                                                on: {
-                                                  click: function ($event) {
-                                                    return _vm.getLogFileContent(
-                                                      logfile.id
-                                                    )
-                                                  },
-                                                },
-                                              },
+                                              "div",
                                               [
                                                 _c(
-                                                  "v-icon",
+                                                  "v-btn",
                                                   {
                                                     attrs: {
-                                                      color: "info",
+                                                      icon: "",
                                                       "x-small": "",
+                                                      loading: _vm.loading,
+                                                    },
+                                                    on: {
+                                                      click: function ($event) {
+                                                        return _vm.getLogFileContent(
+                                                          logfile.id
+                                                        )
+                                                      },
                                                     },
                                                   },
-                                                  [_vm._v("mdi-magnify")]
+                                                  [
+                                                    _c(
+                                                      "v-icon",
+                                                      {
+                                                        attrs: {
+                                                          color: "info",
+                                                          "x-small": "",
+                                                        },
+                                                      },
+                                                      [_vm._v("mdi-magnify")]
+                                                    ),
+                                                  ],
+                                                  1
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-btn",
+                                                  {
+                                                    attrs: {
+                                                      icon: "",
+                                                      "x-small": "",
+                                                    },
+                                                    on: {
+                                                      click: function ($event) {
+                                                        return _vm.openEditLogFileDialog(
+                                                          logfile
+                                                        )
+                                                      },
+                                                    },
+                                                  },
+                                                  [
+                                                    _c(
+                                                      "v-icon",
+                                                      {
+                                                        attrs: {
+                                                          color: "green",
+                                                          "x-small": "",
+                                                        },
+                                                      },
+                                                      [_vm._v("mdi-pencil")]
+                                                    ),
+                                                  ],
+                                                  1
                                                 ),
                                               ],
                                               1
                                             ),
-                                          ],
-                                          1
+                                          ]
                                         )
                                       }
                                     ),
@@ -3996,6 +4349,193 @@ var render = function () {
                         "\n                    Smazat obsah souboru\n                "
                       ),
                     ]
+                  ),
+                ],
+                1
+              ),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "800", scrollable: "" },
+          model: {
+            value: _vm.editLogFileDialog,
+            callback: function ($$v) {
+              _vm.editLogFileDialog = $$v
+            },
+            expression: "editLogFileDialog",
+          },
+        },
+        [
+          _c(
+            "v-form",
+            {
+              on: {
+                submit: function ($event) {
+                  $event.preventDefault()
+                  return _vm.updateLogfilePath()
+                },
+              },
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "p",
+                    { staticClass: "grey lighten-5 text-center text-h6 py-3" },
+                    [
+                      _vm._v(
+                        "\n                    Úprava cesty k souboru\n                "
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                attrs: {
+                                  "error-messages": _vm.errors.path,
+                                  label: "Cesta k logům",
+                                  name: "Cesta k logům",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.formData.path,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.formData, "path", $$v)
+                                  },
+                                  expression: "formData.path",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: { cols: "12", sm: "12", md: "6", lg: "6" },
+                            },
+                            [
+                              _c("v-text-field", {
+                                attrs: {
+                                  "error-messages": _vm.errors.description,
+                                  label: "Popis souboru",
+                                  name: "Popis souboru",
+                                  type: "text",
+                                  outlined: "",
+                                  dense: "",
+                                },
+                                model: {
+                                  value: _vm.formData.description,
+                                  callback: function ($$v) {
+                                    _vm.$set(_vm.formData, "description", $$v)
+                                  },
+                                  expression: "formData.description",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "12",
+                                md: "12",
+                                lg: "12",
+                              },
+                            },
+                            [
+                              _c("v-checkbox", {
+                                attrs: {
+                                  label:
+                                    "Manipulovat se souborem jako super user?",
+                                },
+                                model: {
+                                  value: _vm.formData.act_as_superuser,
+                                  callback: function ($$v) {
+                                    _vm.$set(
+                                      _vm.formData,
+                                      "act_as_superuser",
+                                      $$v
+                                    )
+                                  },
+                                  expression: "formData.act_as_superuser",
+                                },
+                              }),
+                            ],
+                            1
+                          ),
+                        ],
+                        1
+                      ),
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    { staticClass: "grey lighten-5" },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "red darken-1", text: "", plain: "" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.closeDialog()
+                            },
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Zavřít\n                    "
+                          ),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            type: "submit",
+                            color: "green darken-1",
+                            text: "",
+                            plain: "",
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Uložit\n                    "
+                          ),
+                        ]
+                      ),
+                    ],
+                    1
                   ),
                 ],
                 1
@@ -4915,34 +5455,117 @@ var render = function () {
                                 { attrs: { fluid: "" } },
                                 [
                                   _vm.serverConfiguration.hardware
-                                    ? _c("v-row", { staticClass: "ml-3" }, [
-                                        _c(
-                                          "span",
-                                          { staticClass: "headline" },
-                                          [
-                                            _c("v-icon", [
-                                              _vm._v(
-                                                "\n                                        mdi-memory\n                                    "
+                                    ? _c(
+                                        "v-row",
+                                        [
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12" } },
+                                            [
+                                              _c(
+                                                "span",
+                                                { staticClass: "display-1" },
+                                                [
+                                                  _c("v-icon", [
+                                                    _vm._v(" mdi-memory "),
+                                                  ]),
+                                                  _vm._v(
+                                                    "\n                                        RAM\n                                        "
+                                                  ),
+                                                  _c("span", {
+                                                    staticClass: "headline",
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.ramInHumanFormat(
+                                                          _vm
+                                                            .serverConfiguration
+                                                            .hardware.ram[0]
+                                                        ) + "GB / "
+                                                      ),
+                                                    },
+                                                  }),
+                                                  _vm._v(" "),
+                                                  _c("span", {
+                                                    staticClass:
+                                                      "title green--text",
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.ramInHumanFormat(
+                                                          _vm
+                                                            .serverConfiguration
+                                                            .hardware.ram[5]
+                                                        ) + "GB zbývá"
+                                                      ),
+                                                    },
+                                                  }),
+                                                ],
+                                                1
                                               ),
-                                            ]),
-                                            _vm._v(
-                                              "\n                                   RAM "
-                                            ),
-                                            _c("span", {
-                                              staticClass: "display-1",
-                                              domProps: {
-                                                innerHTML: _vm._s(
-                                                  _vm.ramInHumanFormat(
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12" } },
+                                            [
+                                              _c("v-progress-linear", {
+                                                attrs: {
+                                                  color: "cyan",
+                                                  rounded: "",
+                                                  height: "10",
+                                                  value: _vm.countPercent(
                                                     _vm.serverConfiguration
-                                                      .hardware.ram[0]
-                                                  ) + "GB"
+                                                      .hardware.ram[0],
+                                                    _vm.serverConfiguration
+                                                      .hardware.ram[5]
+                                                  ),
+                                                },
+                                                scopedSlots: _vm._u(
+                                                  [
+                                                    {
+                                                      key: "default",
+                                                      fn: function (ref) {
+                                                        return [
+                                                          _c(
+                                                            "span",
+                                                            {
+                                                              staticClass:
+                                                                "white--text font-weight-bold",
+                                                            },
+                                                            [
+                                                              _vm._v(
+                                                                _vm._s(
+                                                                  Math.ceil(
+                                                                    _vm.countPercent(
+                                                                      _vm
+                                                                        .serverConfiguration
+                                                                        .hardware
+                                                                        .ram[0],
+                                                                      _vm
+                                                                        .serverConfiguration
+                                                                        .hardware
+                                                                        .ram[5]
+                                                                    )
+                                                                  )
+                                                                ) + "%"
+                                                              ),
+                                                            ]
+                                                          ),
+                                                        ]
+                                                      },
+                                                    },
+                                                  ],
+                                                  null,
+                                                  false,
+                                                  2667040488
                                                 ),
-                                              },
-                                            }),
-                                          ],
-                                          1
-                                        ),
-                                      ])
+                                              }),
+                                            ],
+                                            1
+                                          ),
+                                        ],
+                                        1
+                                      )
                                     : _vm._e(),
                                 ],
                                 1
@@ -4968,7 +5591,7 @@ var render = function () {
                         {
                           staticClass:
                             "overflow-hidden rounded-lg blur shadow-blur",
-                          attrs: { flat: "" },
+                          attrs: { flat: "", height: "130" },
                         },
                         [
                           _c(
@@ -4980,32 +5603,41 @@ var render = function () {
                                 { attrs: { fluid: "" } },
                                 [
                                   _vm.serverConfiguration.hardware
-                                    ? _c("v-row", { staticClass: "ml-3" }, [
-                                        _c(
-                                          "span",
-                                          { staticClass: "headline" },
-                                          [
-                                            _c("v-icon", [
-                                              _vm._v(
-                                                "\n                                        mdi-cpu-64-bit\n                                    "
+                                    ? _c(
+                                        "v-row",
+                                        [
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12" } },
+                                            [
+                                              _c(
+                                                "span",
+                                                { staticClass: "display-1" },
+                                                [
+                                                  _c("v-icon", [
+                                                    _vm._v(" mdi-cpu-64-bit "),
+                                                  ]),
+                                                  _vm._v(
+                                                    "\n                                        CPU jader\n                                        "
+                                                  ),
+                                                  _c("span", {
+                                                    staticClass: "headline",
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.serverConfiguration
+                                                          .hardware
+                                                          .sumCpuCores[0]
+                                                      ),
+                                                    },
+                                                  }),
+                                                ],
+                                                1
                                               ),
-                                            ]),
-                                            _vm._v(
-                                              "\n                                    Počet CPU jader\n                                    "
-                                            ),
-                                            _c("span", {
-                                              staticClass: "display-1",
-                                              domProps: {
-                                                innerHTML: _vm._s(
-                                                  _vm.serverConfiguration
-                                                    .hardware.sumCpuCores[0]
-                                                ),
-                                              },
-                                            }),
-                                          ],
-                                          1
-                                        ),
-                                      ])
+                                            ]
+                                          ),
+                                        ],
+                                        1
+                                      )
                                     : _vm._e(),
                                 ],
                                 1
@@ -5043,46 +5675,120 @@ var render = function () {
                                 { attrs: { fluid: "" } },
                                 [
                                   _vm.serverConfiguration.hardware.hdd
-                                    ? _c("v-row", { staticClass: "ml-3" }, [
-                                        _c(
-                                          "span",
-                                          { staticClass: "headline" },
-                                          [
-                                            _c("v-icon", [
-                                              _vm._v(
-                                                "\n                                        mdi-harddisk\n                                    "
+                                    ? _c(
+                                        "v-row",
+                                        [
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12" } },
+                                            [
+                                              _c(
+                                                "span",
+                                                { staticClass: "display-1" },
+                                                [
+                                                  _c("v-icon", [
+                                                    _vm._v(" mdi-harddisk "),
+                                                  ]),
+                                                  _vm._v(
+                                                    "\n                                        HDD\n                                        "
+                                                  ),
+                                                  _c("span", {
+                                                    staticClass: "headline",
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.convertToGB(
+                                                          _vm
+                                                            .serverConfiguration
+                                                            .hardware.hdd
+                                                            .total[0]
+                                                        ) + "GB / "
+                                                      ),
+                                                    },
+                                                  }),
+                                                  _c("span", {
+                                                    staticClass:
+                                                      "title green--text",
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.convertToGB(
+                                                          _vm
+                                                            .serverConfiguration
+                                                            .hardware.hdd
+                                                            .free[0]
+                                                        ) + "GB zbývá"
+                                                      ),
+                                                    },
+                                                  }),
+                                                ],
+                                                1
                                               ),
-                                            ]),
-                                            _vm._v(
-                                              "\n                                    HDD "
-                                            ),
-                                            _c("span", {
-                                              staticClass: "display-1",
-                                              domProps: {
-                                                innerHTML: _vm._s(
-                                                  _vm.convertToGB(
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12" } },
+                                            [
+                                              _c("v-progress-linear", {
+                                                attrs: {
+                                                  color: "cyan",
+                                                  rounded: "",
+                                                  height: "10",
+                                                  value: _vm.countPercent(
                                                     _vm.serverConfiguration
-                                                      .hardware.hdd.total[0]
-                                                  ) + "GB / "
-                                                ),
-                                              },
-                                            }),
-                                            _c("span", {
-                                              staticClass:
-                                                "headline green--text",
-                                              domProps: {
-                                                innerHTML: _vm._s(
-                                                  _vm.convertToGB(
+                                                      .hardware.hdd.total[0],
                                                     _vm.serverConfiguration
                                                       .hardware.hdd.free[0]
-                                                  ) + "GB zbývá"
+                                                  ),
+                                                },
+                                                scopedSlots: _vm._u(
+                                                  [
+                                                    {
+                                                      key: "default",
+                                                      fn: function (ref) {
+                                                        return [
+                                                          _c(
+                                                            "span",
+                                                            {
+                                                              staticClass:
+                                                                "white--text font-weight-bold",
+                                                            },
+                                                            [
+                                                              _vm._v(
+                                                                _vm._s(
+                                                                  Math.ceil(
+                                                                    _vm.countPercent(
+                                                                      _vm
+                                                                        .serverConfiguration
+                                                                        .hardware
+                                                                        .hdd
+                                                                        .total[0],
+                                                                      _vm
+                                                                        .serverConfiguration
+                                                                        .hardware
+                                                                        .hdd
+                                                                        .free[0]
+                                                                    )
+                                                                  )
+                                                                ) + "%"
+                                                              ),
+                                                            ]
+                                                          ),
+                                                        ]
+                                                      },
+                                                    },
+                                                  ],
+                                                  null,
+                                                  false,
+                                                  1717798993
                                                 ),
-                                              },
-                                            }),
-                                          ],
-                                          1
-                                        ),
-                                      ])
+                                              }),
+                                            ],
+                                            1
+                                          ),
+                                        ],
+                                        1
+                                      )
                                     : _vm._e(),
                                 ],
                                 1

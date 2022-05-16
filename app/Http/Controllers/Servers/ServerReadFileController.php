@@ -12,6 +12,10 @@ class ServerReadFileController extends Controller
 {
     public function __invoke(Server $server, LogFilePath $logFilePath)
     {
-        return (new ReadAnyFileAction())->handle($server, $logFilePath->path);
+        $serverResponse = (new ReadAnyFileAction())->handle($server, $logFilePath->path, $logFilePath->act_as_superuser);
+        if($serverResponse == false) {
+            return $this->error_response("Přítup zamítnut");
+        }
+        return $serverResponse;
     }
 }

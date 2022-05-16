@@ -22,7 +22,7 @@
 </template>
 <script>
 import ServerName from "./ServerName.vue";
-import ServerSumInformations from "./ServerSumInformations";
+import ServerSumInformations from "./ServerSumInformations.vue";
 import ServerMenu from "./ServerMenu.vue";
 import ServerObecne from "./ServerObecne.vue";
 import ServerHardware from "./ServerHardware.vue";

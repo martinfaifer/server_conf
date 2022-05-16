@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
             Route::post('write/{logFilePath}', ServerWriteFileController::class);
             Route::post('clear/{logFilePath}', ServerClearFileController::class);
             Route::post('', [LogFilePathController::class, 'store']);
+            Route::patch('{logFilePath}', [LogFilePathController::class, 'update']);
         });
         Route::prefix('{server}/domains')->group(function () {
             Route::post('', [ServerDomainController::class, 'store']);

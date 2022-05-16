@@ -5,6 +5,7 @@ namespace App\Actions\Servers;
 use App\Models\Server;
 use App\Jobs\GetServerInformationJob;
 use App\Actions\Servers\Commands\GetCpuInfoAction;
+use App\Actions\Servers\Commands\GetRamSpaceAction;
 use App\Actions\Servers\Commands\GetWebServerAction;
 use App\Actions\Servers\Commands\GetMemcachedVersion;
 use App\Actions\Servers\Commands\GetPhpVersionAction;
@@ -17,7 +18,6 @@ use App\Actions\Servers\Commands\GetRedisVersionAction;
 use App\Actions\Servers\Commands\GetHddTotalSpaceAction;
 use App\Actions\Servers\Commands\GetPythonVersionAction;
 use App\Actions\Servers\Commands\GetMongoDBVersionAction;
-use App\Actions\Servers\Commands\GetRamInformationAction;
 use App\Actions\Servers\Commands\GetOperationSystemVersionAction;
 
 class GetInformationAction
@@ -26,6 +26,7 @@ class GetInformationAction
     {
         $servers = Server::get();
         foreach ($servers as $server) {
+            // $this->get_information($server);
             dispatch(new GetServerInformationJob($server));
         }
     }
@@ -39,7 +40,7 @@ class GetInformationAction
 
         return [
             'hardware' => [
-                'ram' => (new GetRamInformationAction())->handle($connection),
+                'ram' => (new GetRamSpaceAction())->handle($connection),
                 'sumCpuCores' => (new GetSumCpuCoreAction())->handle($connection),
                 'cpuInformation' => (new GetCpuInfoAction())->handle($connection),
                 'hardwareInformation' => (new GetHardwareInfoAction())->handle($connection),

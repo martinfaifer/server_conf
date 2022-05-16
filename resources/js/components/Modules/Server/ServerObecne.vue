@@ -2,7 +2,7 @@
     <div>
         <v-container fluid>
             <v-row>
-                <v-col cols="12" sm="12" md="4" lg="4" v-if="server.login">
+                <v-col cols="12" sm="12" md="3" lg="3" v-if="server.login">
                     <v-card
                         class="overflow-hidden rounded-lg blur shadow-blur"
                         flat
@@ -43,14 +43,48 @@
                                         v-if="server.superuser"
                                     >
                                         <strong>Root heslo: </strong>
-                                        {{ server.superuser.root_password }}
+                                        <div>
+                                            <span
+                                                v-if="
+                                                    hiddenRootPassword == true
+                                                "
+                                            >
+                                                *****
+                                            </span>
+                                            <span v-else>
+                                                {{
+                                                    server.superuser
+                                                        .root_password
+                                                }}
+                                            </span>
+                                            <v-icon
+                                                v-if="
+                                                    hiddenRootPassword == true
+                                                "
+                                                @click="showRootPassword()"
+                                                small
+                                                color="grey"
+                                                class="mx-3"
+                                            >
+                                                mdi-eye-off
+                                            </v-icon>
+                                             <v-icon
+                                                v-else
+                                                @click="hideRootPassword()"
+                                                small
+                                                color="grey"
+                                                class="mx-3"
+                                            >
+                                                mdi-eye
+                                            </v-icon>
+                                        </div>
                                     </v-col>
                                 </v-row>
                             </v-container>
                         </v-card-text>
                     </v-card>
                 </v-col>
-                <v-col cols="12" sm="12" md="4" lg="4" v-if="server.domains">
+                <v-col cols="12" sm="12" md="5" lg="5" v-if="server.domains">
                     <v-card
                         class="overflow-hidden rounded-lg blur shadow-blur"
                         flat
@@ -99,7 +133,7 @@
                                                     openEditDomainDialog(domain)
                                                 "
                                             >
-                                                <v-icon color="info" x-small
+                                                <v-icon color="green" x-small
                                                     >mdi-pencil</v-icon
                                                 >
                                             </v-btn>
@@ -162,18 +196,35 @@
                                         >
                                             {{ logfile.description }}
                                         </p>
-                                        <v-btn
-                                            icon
-                                            x-small
-                                            @click="
-                                                getLogFileContent(logfile.id)
-                                            "
-                                            :loading="loading"
-                                        >
-                                            <v-icon color="info" x-small
-                                                >mdi-magnify</v-icon
+                                        <div>
+                                            <v-btn
+                                                icon
+                                                x-small
+                                                @click="
+                                                    getLogFileContent(
+                                                        logfile.id
+                                                    )
+                                                "
+                                                :loading="loading"
                                             >
-                                        </v-btn>
+                                                <v-icon color="info" x-small
+                                                    >mdi-magnify</v-icon
+                                                >
+                                            </v-btn>
+                                            <v-btn
+                                                icon
+                                                x-small
+                                                @click="
+                                                    openEditLogFileDialog(
+                                                        logfile
+                                                    )
+                                                "
+                                            >
+                                                <v-icon color="green" x-small
+                                                    >mdi-pencil</v-icon
+                                                >
+                                            </v-btn>
+                                        </div>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -410,6 +461,67 @@
             </v-card>
         </v-dialog>
 
+        <v-dialog
+            v-model="editLogFileDialog"
+            persistent
+            max-width="800"
+            scrollable
+        >
+            <v-form @submit.prevent="updateLogfilePath()">
+                <v-card>
+                    <p class="grey lighten-5 text-center text-h6 py-3">
+                        Úprava cesty k souboru
+                    </p>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="12" sm="12" md="6" lg="6">
+                                <v-text-field
+                                    :error-messages="errors.path"
+                                    v-model="formData.path"
+                                    label="Cesta k logům"
+                                    name="Cesta k logům"
+                                    type="text"
+                                    outlined
+                                    dense
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="12" md="6" lg="6">
+                                <v-text-field
+                                    :error-messages="errors.description"
+                                    v-model="formData.description"
+                                    label="Popis souboru"
+                                    name="Popis souboru"
+                                    type="text"
+                                    outlined
+                                    dense
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="12" md="12" lg="12">
+                                <v-checkbox
+                                    v-model="formData.act_as_superuser"
+                                    label="Manipulovat se souborem jako super user?"
+                                ></v-checkbox>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions class="grey lighten-5">
+                        <v-btn
+                            color="red darken-1"
+                            text
+                            plain
+                            @click="closeDialog()"
+                        >
+                            Zavřít
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn type="submit" color="green darken-1" text plain>
+                            Uložit
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-form>
+        </v-dialog>
+
         <v-dialog v-model="removeDomainDialog" persistent max-width="400px">
             <v-card>
                 <v-card-text>
@@ -452,6 +564,7 @@ export default {
     computed: {},
     data() {
         return {
+            hiddenRootPassword: true,
             loading: false,
             domainDialog: false,
             logFilePathDialog: false,
@@ -459,6 +572,7 @@ export default {
             loginDialog: false,
             editDomainDialog: false,
             removeDomainDialog: false,
+            editLogFileDialog: false,
             formData: [],
             fileId: null,
             errors: [],
@@ -478,6 +592,7 @@ export default {
             this.readFileDialog = false;
             this.editDomainDialog = false;
             this.removeDomainDialog = false;
+            this.editLogFileDialog = false;
             this.loading = false;
             this.fileId = null;
         },
@@ -492,9 +607,14 @@ export default {
                         fileId
                 )
                 .then((response) => {
-                    this.formData = response.data;
-                    this.readFileDialog = true;
-                    this.loading = false;
+                    if (response.data.status == "error") {
+                        this.$store.state.alerts = response.data;
+                        this.loading = false;
+                    } else {
+                        this.formData = response.data;
+                        this.readFileDialog = true;
+                        this.loading = false;
+                    }
                 });
         },
 
@@ -528,12 +648,40 @@ export default {
             this.removeDomainDialog = true;
         },
 
+        openEditLogFileDialog(file) {
+            this.formData = file;
+            this.editLogFileDialog = true;
+        },
+
         storeLogfilePath() {
             axios
                 .post("servers/" + this.$route.params.serverId + "/logfiles", {
                     path: this.formData.path,
                     description: this.formData.description,
                 })
+                .then((response) => {
+                    this.$store.state.alerts = response.data;
+                    this.closeDialog();
+                    this.$root.$emit("reaload_server_information", "update");
+                })
+                .catch((error) => {
+                    this.errors = error.response.data.errors;
+                });
+        },
+
+        updateLogfilePath() {
+            axios
+                .patch(
+                    "servers/" +
+                        this.$route.params.serverId +
+                        "/logfiles/" +
+                        this.formData.id,
+                    {
+                        path: this.formData.path,
+                        description: this.formData.description,
+                        act_as_superuser: this.formData.act_as_superuser,
+                    }
+                )
                 .then((response) => {
                     this.$store.state.alerts = response.data;
                     this.closeDialog();
@@ -594,10 +742,19 @@ export default {
                     this.$root.$emit("reaload_server_information", "update");
                 });
         },
+
+        showRootPassword() {
+            this.hiddenRootPassword = false;
+        },
+        hideRootPassword() {
+            this.hiddenRootPassword = true;
+        }
     },
 
     watch: {
-        $route(to, from) {},
+        $route(to, from) {
+            this.hiddenRootPassword = true;
+        },
     },
 };
 </script>
